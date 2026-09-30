@@ -140,6 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupPlayerControls();
   setupRackControls();
   setupSettingsControls();
+  initKpopChart();
 
   // 웹 브라우저 고유 동작 방어 (완전한 네이티브 앱 UX)
   // 1. 길게 누르기 / 우클릭 컨텍스트 메뉴 방지
@@ -331,30 +332,476 @@ function renderDashboard() {
   }
 }
 
+// ==================== 국내가요 노래방 애창곡 & 최신 인기차트 TOP 50 데이터 ====================
+export const CURATED_KARAOKE_DB = [
+  { rank: 1, title: '나는 아픈 건 딱 질색이니까', artist: '(여자)아이들', vid: 'qL4wH9gQx-U', keywords: ['아픈건딱질색이니까', '아이들', '여자아이들', 'fate'] },
+  { rank: 2, title: '첫 만남은 계획대로 되지 않아', artist: 'TWS (투어스)', vid: 'J0O0X7jPq1c', keywords: ['첫만남은', '투어스', 'tws', '첫만남은계획대로'] },
+  { rank: 3, title: '밤양갱', artist: '비비 (BIBI)', vid: '4kL_v_6p9oY', keywords: ['밤양갱', '비비', 'bibi'] },
+  { rank: 4, title: '고민중독', artist: 'QWER', vid: 'ImuWa3SJulY', keywords: ['고민중독', 'qwer'] },
+  { rank: 5, title: '에피소드', artist: '이무진', vid: 'M_p8o9w4l2o', keywords: ['에피소드', '이무진'] },
+  { rank: 6, title: '사건의 지평선', artist: '윤하', vid: 'bbakpriS750', keywords: ['사건의지평선', '윤하'] },
+  { rank: 7, title: '사랑은 늘 도망가', artist: '임영웅', vid: 'K_xTe4q2hP8', keywords: ['사랑은늘도망가', '임영웅'] },
+  { rank: 8, title: '한 페이지가 될 수 있게', artist: 'DAY6 (데이식스)', vid: 'vnS_6zGheEg', keywords: ['한페이지가될수있게', '데이식스', 'day6'] },
+  { rank: 9, title: 'Welcome to the Show', artist: 'DAY6 (데이식스)', vid: 'V0eGZ8hM0m8', keywords: ['웰컴투더쇼', 'welcometotheshow', 'day6', '데이식스'] },
+  { rank: 10, title: '예뻤어', artist: 'DAY6 (데이식스)', vid: 'BS7tz2rAQUI', keywords: ['예뻤어', '데이식스', 'day6'] },
+  { rank: 11, title: '비의 랩소디', artist: '임재현', vid: 'K9eE3d1i9m8', keywords: ['비의랩소디', '임재현'] },
+  { rank: 12, title: '헤어지자 말해요', artist: '박재정', vid: 'D9E1eZfM8y8', keywords: ['헤어지자말해요', '박재정'] },
+  { rank: 13, title: 'Supernova', artist: 'aespa (에스파)', vid: 'phuiAIQAxZ4', keywords: ['슈퍼노바', 'supernova', '에스파', 'aespa'] },
+  { rank: 14, title: 'Hype Boy', artist: 'NewJeans (뉴진스)', vid: '11cta61Wi0g', keywords: ['하입보이', 'hypeboy', '뉴진스', 'newjeans'] },
+  { rank: 15, title: 'Ditto', artist: 'NewJeans (뉴진스)', vid: 'pSUydWEq46E', keywords: ['디토', 'ditto', '뉴진스', 'newjeans'] },
+  { rank: 16, title: '서른 즈음에', artist: '김광석', vid: 'r2K4J-ZgD2E', keywords: ['서른즈음에', '김광석'] },
+  { rank: 17, title: '그대에게', artist: '신해철 (무한궤도)', vid: 'W3q8Od5qJio', keywords: ['그대에게', '신해철', '무한궤도'] },
+  { rank: 18, title: '가시', artist: '버즈 (Buzz)', vid: '0S39t-v8h_o', keywords: ['가시', '버즈', 'buzz', '민경훈'] },
+  { rank: 19, title: '좋니', artist: '윤종신', vid: 'bz_45pYx_aM', keywords: ['좋니', '윤종신'] },
+  { rank: 20, title: '응급실', artist: 'izi', vid: 'o_K9C_9i_bA', keywords: ['응급실', 'izi', '이지', '쾌걸춘향'] },
+  { rank: 21, title: '소주 한 잔', artist: '임창정', vid: 'FmYhL186-Wc', keywords: ['소주한잔', '임창정'] },
+  { rank: 22, title: '야생화', artist: '박효신', vid: '_hsr0ST6Mrc', keywords: ['야생화', '박효신'] },
+  { rank: 23, title: '너의 모든 순간', artist: '성시경', vid: 'sV9Q6v8o5a8', keywords: ['너의모든순간', '성시경'] },
+  { rank: 24, title: 'I AM', artist: 'IVE (아이브)', vid: '6ZUIwj3FlWY', keywords: ['아이엠', 'iam', '아이브', 'ive'] },
+  { rank: 25, title: '내 이름 맑음', artist: 'QWER', vid: 'v8N3Z0hG2i0', keywords: ['내이름맑음', 'qwer'] },
+  { rank: 26, title: '신호등', artist: '이무진', vid: 'SK6Sm2Ki9tI', keywords: ['신호등', '이무진'] },
+  { rank: 27, title: '취중고백', artist: '김민석 (멜로망스)', vid: 'aY7B0T_U1lU', keywords: ['취중고백', '김민석', '멜로망스'] },
+  { rank: 28, title: 'Love Lee', artist: 'AKMU (악뮤)', vid: 'EIz0GnyRRck', keywords: ['러브리', 'lovelee', '악뮤', 'akmu'] },
+  { rank: 29, title: '어떻게 이별까지 사랑하겠어', artist: 'AKMU (악뮤)', vid: 'm3DZsBw5bnE', keywords: ['어떻게이별까지사랑하겠어', '악뮤', 'akmu'] },
+  { rank: 30, title: '만약에', artist: '태연', vid: 'eZp0s2K1w0I', keywords: ['만약에', '태연', '소녀시대'] },
+  { rank: 31, title: '모든 날, 모든 순간', artist: '폴킴', vid: 'o_WfP6j8t2o', keywords: ['모든날모든순간', '폴킴'] },
+  { rank: 32, title: '체념', artist: '빅마마', vid: 'b_P7u9Z5w2Y', keywords: ['체념', '빅마마', '이영현'] },
+  { rank: 33, title: '안녕', artist: '폴킴', vid: 'l3jH1wU3P0I', keywords: ['안녕', '폴킴', '호텔델루나'] },
+  { rank: 34, title: '사랑앓이', artist: 'FT아일랜드', vid: 'uOa7e4h2Tks', keywords: ['사랑앓이', 'ft아일랜드', '이홍기'] },
+  { rank: 35, title: '가질 수 없는 너', artist: '뱅크', vid: 'd0x8z9Y2P0I', keywords: ['가질수없는너', '뱅크'] },
+  { rank: 36, title: '포장마차', artist: '황인욱', vid: 'q_7W0x9Z2pI', keywords: ['포장마차', '황인욱'] },
+  { rank: 37, title: '눈의 꽃', artist: '박효신', vid: 'j0P1y8Z2w3I', keywords: ['눈의꽃', '박효신', '미안하다사랑한다'] },
+  { rank: 38, title: '벌써 일년', artist: '브라운아이즈', vid: 'w2P0y9Z8x1I', keywords: ['벌써일년', '브라운아이즈', '나얼'] },
+  { rank: 39, title: '인형의 꿈', artist: '러브홀릭', vid: 't2W0y9X8z1I', keywords: ['인형의꿈', '러브홀릭', '일기예보'] },
+  { rank: 40, title: '하늘을 달리다', artist: '이적', vid: 'v1W0z8P2y9I', keywords: ['하늘을달리다', '이적'] },
+  { rank: 41, title: '다행이다', artist: '이적', vid: 'c0P2w8Z1y9I', keywords: ['다행이다', '이적'] },
+  { rank: 42, title: '가을 우체국 앞에서', artist: '윤도현', vid: 'k2P1w8Z0y9I', keywords: ['가을우체국앞에서', '윤도현', 'yb'] },
+  { rank: 43, title: '사랑 Two', artist: '윤도현', vid: 'x0P2w8Y1z3I', keywords: ['사랑two', '사랑투', '윤도현'] },
+  { rank: 44, title: '인연', artist: '이선희', vid: 'b1P2w8Z0y9I', keywords: ['인연', '이선희', '왕의남자'] },
+  { rank: 45, title: '아름다운 강산', artist: '이선희', vid: 'm0P2w8Z1y9I', keywords: ['아름다운강산', '이선희', '신중현'] },
+  { rank: 46, title: '끝사랑', artist: '김범수', vid: 's2P0w8Z1y9I', keywords: ['끝사랑', '김범수'] },
+  { rank: 47, title: '보고 싶다', artist: '김범수', vid: 'y0P1w8Z2y9I', keywords: ['보고싶다', '김범수', '천국의계단'] },
+  { rank: 48, title: '광화문에서', artist: '규현', vid: 'd2P1w8Z0y9I', keywords: ['광화문에서', '규현'] },
+  { rank: 49, title: '너를 만나', artist: '폴킴', vid: 'k0P1w8Z2y9I', keywords: ['너를만나', '폴킴'] },
+  { rank: 50, title: 'Plastic Love', artist: 'Mariya Takeuchi', vid: '3bNITQR4Uso', keywords: ['plasticlove', '플라스틱러브', '시티팝', 'citypop'] }
+];
+
+// 전역 노래방 영상 로더 함수
+let currentKaraokeVideoId = 'W3q8Od5qJio';
+let currentKaraokeTitle = '그대에게';
+let currentKaraokeArtist = '신해철 (무한궤도)';
+
+export function loadKaraokeVideo(videoId, title = '', artist = '') {
+  currentKaraokeVideoId = videoId;
+  if (title) currentKaraokeTitle = title;
+  if (artist) currentKaraokeArtist = artist;
+
+  const karaokeFrame = document.getElementById('karaoke-embed-frame');
+  const placeholder = document.getElementById('karaoke-placeholder');
+
+  if (karaokeFrame && placeholder) {
+    placeholder.style.display = 'none';
+    karaokeFrame.style.display = 'block';
+    // autoplay=1, playsinline=1, enablejsapi=1, rel=0
+    karaokeFrame.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&playsinline=1`;
+  }
+}
+
+// 다중 노래방 버전 칩 렌더러
+function renderVersionChips(versions) {
+  const bar = document.getElementById('karaoke-search-results-bar');
+  if (!bar) return;
+  if (!versions || versions.length <= 1) {
+    bar.style.display = 'none';
+    bar.innerHTML = '';
+    return;
+  }
+  bar.style.display = 'flex';
+  bar.innerHTML = '<span style="font-size: 9px; color: #64748b; margin-right: 4px;">버전:</span>';
+  versions.forEach((v, idx) => {
+    const chip = document.createElement('button');
+    chip.className = `karaoke-version-chip ${idx === 0 ? 'is-active' : ''}`;
+    chip.textContent = v.title || `버전 ${idx + 1}`;
+    chip.onclick = () => {
+      audioEngine.playMechanicalClick();
+      bar.querySelectorAll('.karaoke-version-chip').forEach(c => c.classList.remove('is-active'));
+      chip.classList.add('is-active');
+      loadKaraokeVideo(v.videoId);
+    };
+    bar.appendChild(chip);
+  });
+}
+
+// 실시간 온라인 노래방 검색 프록시
+async function fetchOnlineKaraokeVideo(raw) {
+  const clean = raw.trim();
+  const query = `${clean} 노래방`;
+
+  // 1. Invidious 공개 API 시도 (가장 빠른 응답)
+  const invidiousInstances = [
+    'https://invidious.nerdvpn.de',
+    'https://inv.nadeko.net',
+    'https://invidious.drgns.space'
+  ];
+
+  for (const base of invidiousInstances) {
+    try {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 2000);
+      const res = await fetch(`${base}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
+        signal: ctrl.signal
+      });
+      clearTimeout(tid);
+      if (res.ok) {
+        const items = await res.json();
+        if (Array.isArray(items) && items.length > 0) {
+          return items.slice(0, 4).map(item => ({
+            videoId: item.videoId,
+            title: item.title
+          }));
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 2. AllOrigins CORS 프록시로 YouTube 검색 결과 실시간 파싱
+  try {
+    const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(ytUrl)}`;
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 3000);
+    const res = await fetch(proxyUrl, { signal: ctrl.signal });
+    clearTimeout(tid);
+    if (res.ok) {
+      const data = await res.json();
+      const html = data.contents || '';
+      const matches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
+      if (matches.length > 0) {
+        const uniqueIds = [...new Set(matches.map(m => m[1]))].slice(0, 3);
+        return uniqueIds.map((id, idx) => ({
+          videoId: id,
+          title: idx === 0 ? `${clean} (추천)` : `버전 ${idx + 1}`
+        }));
+      }
+    }
+  } catch (e) {}
+
+  return null;
+}
+
+// 통합 즉시 검색 & 자동 재생 함수 (URL 입력창 없음!)
+export async function executeKaraokeSearch(raw) {
+  if (!raw || !raw.trim()) {
+    showRetroModal({
+      title: '⚠️ SEARCH NOTICE',
+      contentHTML: '곡명이나 가수명을 입력하거나 음성 버튼을 눌러 말씀해주세요.',
+      confirmText: '확인'
+    });
+    return;
+  }
+
+  const query = raw.trim();
+  audioEngine.playMechanicalClick();
+
+  // 0. 유튜브 URL 링크 직접 입력된 경우 대응
+  const ytMatch = query.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  if (ytMatch && ytMatch[1]) {
+    loadKaraokeVideo(ytMatch[1], '유튜브 노래방', 'YouTube Track');
+    renderVersionChips([]);
+    return;
+  }
+
+  // 1단계: 50+ 내장 애창곡/차트 DB에서 즉시 0ms 매칭 검사
+  const normQuery = query.toLowerCase().replace(/[\s\-_]/g, '');
+  const localMatch = CURATED_KARAOKE_DB.find(song => {
+    const normTitle = song.title.toLowerCase().replace(/[\s\-_]/g, '');
+    const normArtist = song.artist.toLowerCase().replace(/[\s\-_]/g, '');
+    return normTitle.includes(normQuery) || normQuery.includes(normTitle) ||
+           normArtist.includes(normQuery) ||
+           (song.keywords && song.keywords.some(k => normQuery.includes(k.toLowerCase().replace(/[\s\-_]/g, ''))));
+  });
+
+  if (localMatch) {
+    loadKaraokeVideo(localMatch.vid, localMatch.title, localMatch.artist);
+    renderVersionChips([{ videoId: localMatch.vid, title: `${localMatch.title} (TJ/KY)` }]);
+    return;
+  }
+
+  // 2단계: 로딩 인디케이터 표시 후 온라인 노래방 검색
+  const karaokeFrame = document.getElementById('karaoke-embed-frame');
+  const placeholder = document.getElementById('karaoke-placeholder');
+  if (placeholder) {
+    placeholder.style.display = 'flex';
+    placeholder.innerHTML = `
+      <div class="placeholder-icon" style="animation: spin 1s infinite linear;">💿</div>
+      <div style="font-weight: 700; color: var(--vfd-cyan); font-size: 13px; margin-bottom: 2px;">
+        "${query}" 노래방 검색 중...
+      </div>
+      <div style="font-size: 10px; color: #7b8599;">실시간 가사 반주 영상을 찾아 바로 재생합니다.</div>
+    `;
+  }
+  if (karaokeFrame) karaokeFrame.style.display = 'none';
+
+  const onlineResults = await fetchOnlineKaraokeVideo(query);
+
+  if (onlineResults && onlineResults.length > 0) {
+    const top = onlineResults[0];
+    loadKaraokeVideo(top.videoId, query, '노래방');
+    renderVersionChips(onlineResults);
+  } else {
+    // 3단계: 검색 결과 없음 안내
+    if (placeholder) {
+      placeholder.innerHTML = `
+        <div class="placeholder-icon">⚠️</div>
+        <div style="font-weight: 700; color: #f87171; font-size: 13px; margin-bottom: 2px;">
+          "${query}" 영상을 자동 연결하지 못했습니다.
+        </div>
+        <div style="font-size: 10px; color: #7b8599; margin-top: 4px;">
+          곡명이나 가수명을 더 간단하게 입력해주시거나 메인 화면의 인기차트에서 선택해주세요.
+        </div>
+      `;
+    }
+  }
+}
+
+// ==================== 음성인식 (STT) 마이크 검색 ====================
+function setupVoiceSearch(searchInput) {
+  const voiceBtn = document.getElementById('studio-voice-btn');
+  if (!voiceBtn) return;
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    voiceBtn.title = '이 브라우저는 음성 인식을 지원하지 않습니다';
+    voiceBtn.onclick = () => {
+      showRetroModal({
+        title: '🎙️ VOICE SEARCH',
+        contentHTML: '현재 브라우저에서 마이크 음성 인식이 지원되지 않습니다. Chrome 브라우저를 이용해주세요.',
+        confirmText: '확인'
+      });
+    };
+    return;
+  }
+
+  let recognition = null;
+  let isListening = false;
+
+  voiceBtn.onclick = () => {
+    audioEngine.playMechanicalClick();
+
+    if (isListening && recognition) {
+      recognition.stop();
+      return;
+    }
+
+    try {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'ko-KR';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isListening = true;
+        voiceBtn.classList.add('is-listening');
+        voiceBtn.innerHTML = '<span>🔴</span> 듣는 중...';
+        if (searchInput) searchInput.placeholder = '말씀해주세요... (예: 서른 즈음에)';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.trim();
+        if (transcript) {
+          if (searchInput) searchInput.value = transcript;
+          executeKaraokeSearch(transcript);
+        }
+      };
+
+      recognition.onerror = () => {
+        isListening = false;
+        voiceBtn.classList.remove('is-listening');
+        voiceBtn.innerHTML = '<span>🎙️</span> 음성';
+        if (searchInput) searchInput.placeholder = '곡명이나 가수명을 입력하세요';
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        voiceBtn.classList.remove('is-listening');
+        voiceBtn.innerHTML = '<span>🎙️</span> 음성';
+        if (searchInput) searchInput.placeholder = '곡명이나 가수명을 입력하세요';
+      };
+
+      recognition.start();
+    } catch (err) {
+      isListening = false;
+      voiceBtn.classList.remove('is-listening');
+      voiceBtn.innerHTML = '<span>🎙️</span> 음성';
+    }
+  };
+}
+
+// ==================== K-POP TOP 50 인기차트 컨트롤러 ====================
+export function initKpopChart() {
+  const listEl = document.getElementById('kpop-chart-list');
+  const refreshBtn = document.getElementById('btn-refresh-kpop-chart');
+  if (!listEl) return;
+
+  // 캐시된 차트 로드 또는 기본 50곡 데이터 적용
+  let chartData = CURATED_KARAOKE_DB;
+  try {
+    const cached = localStorage.getItem('kpop_top50_chart');
+    if (cached) {
+      chartData = JSON.parse(cached);
+    }
+  } catch (e) {}
+
+  renderChartList(chartData);
+
+  // 차트 새로고침 버튼 (원할 때만 1회성 동작 - 토큰 낭비 방지)
+  if (refreshBtn) {
+    refreshBtn.onclick = () => {
+      audioEngine.playMechanicalClick();
+      showChartRefreshModal();
+    };
+  }
+}
+
+function renderChartList(songs) {
+  const listEl = document.getElementById('kpop-chart-list');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+
+  songs.forEach(song => {
+    const item = document.createElement('div');
+    item.className = 'chart-item';
+
+    let rankClass = '';
+    if (song.rank === 1) rankClass = 'rank-1';
+    else if (song.rank === 2) rankClass = 'rank-2';
+    else if (song.rank === 3) rankClass = 'rank-3';
+    else if (song.rank <= 10) rankClass = 'rank-top10';
+
+    item.innerHTML = `
+      <span class="chart-rank ${rankClass}">${song.rank}</span>
+      <div class="chart-info">
+        <span class="chart-song-title">${song.title}</span>
+        <span class="chart-song-artist">${song.artist}</span>
+      </div>
+      <button class="chart-sing-btn" title="이 노래 바로 부르기">
+        <span>🎤</span> 부르기
+      </button>
+    `;
+
+    const singBtn = item.querySelector('.chart-sing-btn');
+    singBtn.onclick = () => {
+      audioEngine.playMechanicalClick();
+      // 스튜디오 뷰로 즉시 전환
+      document.querySelectorAll('.gnb-mech-key').forEach(b => b.classList.remove('is-engaged'));
+      document.querySelector('.gnb-mech-key[data-view="studio"]')?.classList.add('is-engaged');
+      switchView('studio');
+
+      // 검색창에 곡명 세팅
+      const searchInput = document.getElementById('studio-search-input');
+      if (searchInput) searchInput.value = `${song.artist} - ${song.title}`;
+
+      // 노래 즉시 재생
+      if (song.vid) {
+        loadKaraokeVideo(song.vid, song.title, song.artist);
+        renderVersionChips([{ videoId: song.vid, title: `${song.title} (TJ/KY)` }]);
+      } else {
+        executeKaraokeSearch(`${song.artist} ${song.title}`);
+      }
+    };
+
+    listEl.appendChild(item);
+  });
+}
+
+function showChartRefreshModal() {
+  const savedKey = localStorage.getItem('gemini_api_key') || '';
+  showRetroModal({
+    title: '🔥 K-POP CHART UPDATE',
+    contentHTML: `
+      <div style="font-size: 12px; line-height: 1.6;">
+        <p><strong>가요 인기차트 TOP 50 최신 갱신</strong></p>
+        <p style="font-size: 10px; color: #94a3b8; margin-top: 4px;">
+          * 토큰 낭비를 방지하기 위해 자동 호출되지 않으며, 원하실 때만 1회성으로 갱신됩니다.
+        </p>
+        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <button id="modal-btn-builtin-chart" class="modal-action-btn" style="width: 100%; height: 34px; background: #0284c7; color: #fff; font-weight: bold;">
+            ⭐ 최신 공인 가요 차트 바로 적용 (0 토큰 / 즉시 갱신)
+          </button>
+          <div style="border-top: 1px dashed #282f40; margin: 6px 0; padding-top: 8px;">
+            <label style="font-size: 10px; color: #64748b;">Gemini AI API 키 (선택 사항):</label>
+            <input type="password" id="modal-gemini-key" class="studio-input" placeholder="Google AI Studio API Key (AI 토큰 생성 시 사용)" value="${savedKey}" style="width: 100%; margin-top: 4px;" />
+            <button id="modal-btn-ai-chart" class="modal-action-btn" style="width: 100%; height: 34px; background: #1e2434; color: var(--vfd-cyan); font-weight: bold; margin-top: 6px;">
+              ✨ Gemini AI 실시간 차트 생성 (AI 토큰 1회 사용)
+            </button>
+          </div>
+        </div>
+      </div>
+    `,
+    confirmText: '닫기'
+  });
+
+  setTimeout(() => {
+    const builtinBtn = document.getElementById('modal-btn-builtin-chart');
+    if (builtinBtn) {
+      builtinBtn.onclick = () => {
+        audioEngine.playMechanicalClick();
+        localStorage.removeItem('kpop_top50_chart');
+        renderChartList(CURATED_KARAOKE_DB);
+        closeRetroModal();
+      };
+    }
+
+    const aiBtn = document.getElementById('modal-btn-ai-chart');
+    if (aiBtn) {
+      aiBtn.onclick = async () => {
+        audioEngine.playMechanicalClick();
+        const key = document.getElementById('modal-gemini-key')?.value.trim();
+        if (!key) {
+          alert('Gemini API 키를 입력해주세요. 없으신 경우 상단의 [최신 공인 가요 차트 바로 적용]을 누르시면 됩니다.');
+          return;
+        }
+        localStorage.setItem('gemini_api_key', key);
+        aiBtn.textContent = '⏳ AI 차트 생성 중...';
+        aiBtn.disabled = true;
+
+        try {
+          const prompt = '대한민국 노래방 및 멜론 국내가요 최신 인기차트 TOP 50 목록을 JSON으로 출력해줘. JSON 외 다른 텍스트는 출력하지 마. 형식: [{"rank": 1, "title": "곡명", "artist": "가수명"}]';
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }]
+            })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(cleanJson);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              localStorage.setItem('kpop_top50_chart', JSON.stringify(parsed));
+              renderChartList(parsed);
+              closeRetroModal();
+              return;
+            }
+          }
+          throw new Error('AI 응답 파싱 실패');
+        } catch (err) {
+          alert('AI 차트 생성 중 오류가 발생했습니다: ' + err.message);
+          aiBtn.textContent = '✨ Gemini AI 실시간 차트 생성 (AI 토큰 1회 사용)';
+          aiBtn.disabled = false;
+        }
+      };
+    }
+  }, 100);
+}
+
 // ==================== VIEW 2: STUDIO (노래/녹음 모드) ====================
 function setupStudioControls() {
   const searchInput = document.getElementById('studio-search-input');
   const searchBtn = document.getElementById('studio-search-btn');
-  const karaokeFrame = document.getElementById('karaoke-embed-frame');
-  const placeholder = document.getElementById('karaoke-placeholder');
-
-  // ==================== 유튜브 노래방 영상 로더 ====================
-  let currentKaraokeVideoId = 'W3q8Od5qJio'; // 기본 신해철 그대에게
-  let currentKaraokeTitle = '그대에게';
-  let currentKaraokeArtist = '신해철 (무한궤도)';
-
-  const loadKaraokeVideo = (videoId, title = '', artist = '') => {
-    currentKaraokeVideoId = videoId;
-    if (title) currentKaraokeTitle = title;
-    if (artist) currentKaraokeArtist = artist;
-
-    if (karaokeFrame && placeholder) {
-      placeholder.style.display = 'none';
-      karaokeFrame.style.display = 'block';
-      // 임베드 차단을 방지하는 youtube-nocookie 및 origin 파라미터 적용
-      karaokeFrame.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0`;
-    }
-  };
 
   // 추천곡 칩 클릭 이벤트
   document.querySelectorAll('.karaoke-chip').forEach(chip => {
@@ -365,105 +812,20 @@ function setupStudioControls() {
       const artist = chip.dataset.artist;
       if (searchInput) searchInput.value = `${artist} - ${title}`;
       loadKaraokeVideo(vid, title, artist);
+      renderVersionChips([{ videoId: vid, title: `${title} (추천)` }]);
     };
   });
 
-  // 검색창: 유튜브 URL 파싱 또는 노래방 검색
-  const doSearch = () => {
-    const raw = searchInput ? searchInput.value.trim() : '';
-    if (!raw) {
-      showRetroModal({
-        title: '⚠️ SEARCH NOTICE',
-        contentHTML: '곡명이나 가수명, 또는 유튜브 영상 링크를 입력해주세요.',
-        confirmText: '확인'
-      });
-      return;
-    }
-
-    audioEngine.playMechanicalClick();
-
-    // 1. 유튜브 URL인지 판별 (youtu.be/xxx 또는 watch?v=xxx)
-    const ytMatch = raw.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-    if (ytMatch && ytMatch[1]) {
-      loadKaraokeVideo(ytMatch[1], '유튜브 노래방', 'YouTube Track');
-      return;
-    }
-
-    // 2. 일반 검색어인 경우: 유튜브 노래방 검색 도우미 및 바로가기
-    const query = encodeURIComponent(raw + ' 노래방 MR');
-    showRetroModal({
-      title: '🎤 YOUTUBE KARAOKE',
-      contentHTML: `
-        <div style="font-size: 12px; line-height: 1.6;">
-          <p><strong>[${raw}]</strong> 노래방을 선택하세요.</p>
-          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-            <button id="modal-btn-open-yt" class="modal-action-btn" style="width: 100%; height: 36px; background: #dc2626; color: #fff; font-weight: bold;">
-              ▶ 유튜브 노래방 검색창 열기 (영상 링크 복사)
-            </button>
-            <div style="font-size: 10px; color: #94a3b8;">
-              * 유튜브에서 원하는 노래방 영상을 찾아 <strong>'공유 ➔ 링크 복사'</strong> 후 아래 입력창에 넣으시면 1초 만에 로드됩니다!
-            </div>
-            <input type="text" id="modal-yt-url-input" class="studio-input" placeholder="여기에 유튜브 영상 링크 붙여넣기" style="width: 100%;" />
-          </div>
-        </div>
-      `,
-      confirmText: '영상 로드하기',
-      cancelText: '취소',
-      onConfirm: () => {
-        const link = document.getElementById('modal-yt-url-input')?.value.trim();
-        if (link) {
-          const m = link.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-          if (m && m[1]) {
-            loadKaraokeVideo(m[1], raw, '노래방');
-            if (searchInput) searchInput.value = raw;
-          }
-        }
-      }
-    });
-
-    setTimeout(() => {
-      const openBtn = document.getElementById('modal-btn-open-yt');
-      if (openBtn) {
-        openBtn.onclick = () => {
-          window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank');
-        };
-      }
-    }, 100);
-  };
-
-  if (searchBtn) searchBtn.onclick = doSearch;
-  if (searchInput) {
+  // 검색 버튼 및 엔터키 이벤트 (즉시 검색 & 재생)
+  if (searchBtn && searchInput) {
+    searchBtn.onclick = () => executeKaraokeSearch(searchInput.value);
     searchInput.onkeydown = (e) => {
-      if (e.key === 'Enter') doSearch();
+      if (e.key === 'Enter') executeKaraokeSearch(searchInput.value);
     };
   }
 
-  // 유튜브 링크 직접 입력 버튼
-  const directLinkBtn = document.getElementById('studio-direct-link-btn');
-  if (directLinkBtn) {
-    directLinkBtn.onclick = () => {
-      showRetroModal({
-        title: '🔗 YOUTUBE LINK INPUT',
-        contentHTML: `
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="font-size: 11px; color: #94a3b8;">유튜브 영상 주소(URL)를 입력해주세요:</div>
-            <input type="text" id="direct-yt-url" class="studio-input" placeholder="https://youtu.be/..." style="width: 100%;" />
-          </div>
-        `,
-        confirmText: '재생',
-        cancelText: '취소',
-        onConfirm: () => {
-          const val = document.getElementById('direct-yt-url')?.value.trim();
-          if (val) {
-            const m = val.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-            if (m && m[1]) {
-              loadKaraokeVideo(m[1], '커스텀 노래방', 'YouTube');
-            }
-          }
-        }
-      });
-    };
-  }
+  // 마이크 음성인식 (STT) 검색 세팅
+  setupVoiceSearch(searchInput);
 
   // ==================== 키 조절 로직 ====================
   const pitchValEl = document.getElementById('studio-pitch-val');

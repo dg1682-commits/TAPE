@@ -71,22 +71,12 @@
           </div>
 
           <div class="dash-right-info">
-            <div class="vfd-panel">
+            <!-- 상단: 슬림 VFD 모니터 (테이프 정보 & VU 미터) -->
+            <div class="vfd-panel vfd-panel-compact">
               <div class="vfd-header">
-                <span class="vfd-badge">HI-FI STEREO MONITOR</span>
+                <span class="vfd-badge">HI-FI MONITOR</span>
                 <span class="vfd-clock" id="vfd-clock-display">00:00:00</span>
-              </div>
-
-              <div class="vfd-body">
-                <div class="vfd-title-large" id="dash-tape-title">테이프 로딩 중...</div>
-                <div class="vfd-artist-sub" id="dash-tape-artist">ORIGINAL ARTIST</div>
-
-                <div class="vfd-meta-grid">
-                  <div>녹음 일자: <span class="vfd-meta-val" id="dash-tape-date">1988-12-24</span></div>
-                  <div>재생 횟수: <span class="vfd-meta-val" id="dash-tape-count">0 회</span></div>
-                  <div>소장 테이프: <span class="vfd-meta-val" id="dash-total-tapes">0 개</span></div>
-                  <div>클라우드: <span class="vfd-meta-val" style="color: var(--vfd-cyan);">FIREBASE ON</span></div>
-                </div>
+                <span id="dash-tape-title" class="vfd-compact-title">테이프 로딩 중...</span>
               </div>
 
               <!-- 듀얼 스테레오 VU 미터 -->
@@ -112,12 +102,28 @@
               </div>
             </div>
 
+            <!-- 메인 하이라이트: 국내가요 인기차트 TOP 50 패널 -->
+            <div class="kpop-chart-container">
+              <div class="chart-header">
+                <div class="chart-title">
+                  <span class="chart-fire">🔥</span>
+                  <span>국내가요 인기차트 TOP 50</span>
+                </div>
+                <button id="btn-refresh-kpop-chart" class="btn-chart-refresh" title="원할 때만 차트 불러오기 (토큰 절약)">
+                  <span>🔄</span> 차트 불러오기
+                </button>
+              </div>
+              <div class="chart-list-wrapper" id="kpop-chart-list">
+                <!-- 자바스크립트로 1위 ~ 50위 노래 목록 렌더링 -->
+              </div>
+            </div>
+
             <div class="dash-quick-actions">
               <button class="dash-action-btn" id="dash-btn-play-now">
-                <span>▶</span> 이 테이프 바로 감상
+                <span>▶</span> 테이프 감상
               </button>
               <button class="dash-action-btn btn-rec-highlight" id="dash-btn-go-rec">
-                <span>●</span> 새 노래 녹음하기 (REC)
+                <span>●</span> 새 노래 녹음 (REC)
               </button>
             </div>
           </div>
@@ -127,14 +133,14 @@
         <section class="deck-view studio-view" data-view-panel="studio" id="studio-view-container">
           <!-- 좌측: 모니터 화면 (평상시 55%, 녹음 시 70% 확장되어 가사 시원하게 표기) -->
           <div class="studio-monitor-section" id="studio-monitor-box">
-            <!-- 검색 및 빠른 노래방 칩 (녹음 중에는 숨김) -->
+            <!-- 검색 및 음성인식 버튼 (녹음 중에는 숨김) -->
             <div class="studio-search-bar" id="studio-search-controls">
-              <input type="text" id="studio-search-input" class="studio-input" placeholder="곡명/가수 검색 또는 유튜브 링크 붙여넣기" />
+              <input type="text" id="studio-search-input" class="studio-input" placeholder="곡명이나 가수명을 입력하세요 (또는 음성 버튼)" />
               <button id="studio-search-btn" class="studio-btn-search">
                 <span>🔍</span> 검색
               </button>
-              <button id="studio-direct-link-btn" class="studio-btn-search" style="background: #1e2432;" title="유튜브 링크 직접 입력">
-                <span>🔗</span> 링크
+              <button id="studio-voice-btn" class="studio-btn-search studio-btn-voice" title="음성 검색 (운전 중 말로 검색)">
+                <span>🎙️</span> 음성
               </button>
             </div>
 
@@ -153,10 +159,13 @@
               <div class="karaoke-placeholder" id="karaoke-placeholder">
                 <div class="placeholder-icon">🎤</div>
                 <div style="font-weight: 700; color: #cbd5e1; font-size: 13px; margin-bottom: 2px;">노래방 곡을 선택하세요</div>
-                <div style="font-size: 10px; color: #7b8599;">상단 추천곡을 누르거나 곡명 검색/유튜브 링크를 넣으면 가사 영상이 재생됩니다.</div>
+                <div style="font-size: 10px; color: #7b8599;">검색창에 곡명이나 음성으로 말씀하시면 가사 영상이 즉시 재생됩니다.</div>
               </div>
-              <iframe id="karaoke-embed-frame" style="display: none;" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+              <iframe id="karaoke-embed-frame" style="display: none;" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>
             </div>
+
+            <!-- 다중 검색 결과 버전 선택 칩 바 -->
+            <div id="karaoke-search-results-bar" class="karaoke-results-bar" style="display: none;"></div>
           </div>
 
           <!-- 우측: 컨트롤 데크 (평상시 세팅 ➔ 녹음 중에는 3번/7번 전용 컨트롤로 변신) -->
