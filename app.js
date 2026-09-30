@@ -165,6 +165,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
+  // 5. 앱 종료 버튼
+  const exitBtn = document.getElementById('btn-app-exit');
+  if (exitBtn) {
+    exitBtn.onclick = () => {
+      audioEngine.playMechanicalClick();
+      showRetroModal({
+        title: '⏻ APP SHUTDOWN',
+        contentHTML: '카세트 데크 어플을 종료하시겠습니까?',
+        confirmText: '앱 종료',
+        cancelText: '취소',
+        onConfirm: () => {
+          audioEngine.shutdownMicrophone();
+          window.close();
+          setTimeout(() => {
+            window.location.href = 'about:blank';
+          }, 300);
+        }
+      });
+    };
+  }
+
+  // 6. 상단 블루투스/오디오 장치 자동 감지 초기화
+  initBluetoothAudioDetector();
+
   // 첫 사용자 상호작용 시 오디오 컨텍스트 기동
   document.body.addEventListener('click', () => {
     audioEngine.initContext();
@@ -180,6 +204,12 @@ function setupGnbButtons() {
       if (!targetView) return;
 
       audioEngine.playMechanicalClick();
+
+      // 2번 문제 해결: 설정 버튼은 화면을 바꾸지 않고 깔끔한 설정 모달로 띄움!
+      if (targetView === 'settings') {
+        showSettingsModal();
+        return;
+      }
 
       // 버튼 눌림 상태 표시
       buttons.forEach(b => b.classList.remove('is-engaged'));
@@ -317,19 +347,97 @@ function setupStudioControls() {
         contentHTML: '가수명 또는 노래 제목을 입력해주세요.',
         confirmText: '확인'
       });
+  // ==================== 유튜브 노래방 영상 로더 ====================
+  let currentKaraokeVideoId = 'W3q8Od5qJio'; // 기본 신해철 그대에게
+  let currentKaraokeTitle = '그대에게';
+  let currentKaraokeArtist = '신해철 (무한궤도)';
+
+  const loadKaraokeVideo = (videoId, title = '', artist = '') => {
+    currentKaraokeVideoId = videoId;
+    if (title) currentKaraokeTitle = title;
+    if (artist) currentKaraokeArtist = artist;
+
+    if (karaokeFrame && placeholder) {
+      placeholder.style.display = 'none';
+      karaokeFrame.style.display = 'block';
+      // 임베드 차단을 방지하는 youtube-nocookie 및 origin 파라미터 적용
+      karaokeFrame.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0`;
+    }
+  };
+
+  // 추천곡 칩 클릭 이벤트
+  document.querySelectorAll('.karaoke-chip').forEach(chip => {
+    chip.onclick = () => {
+      audioEngine.playMechanicalClick();
+      const vid = chip.dataset.vid;
+      const title = chip.dataset.title;
+      const artist = chip.dataset.artist;
+      if (searchInput) searchInput.value = `${artist} - ${title}`;
+      loadKaraokeVideo(vid, title, artist);
+    };
+  });
+
+  // 검색창: 유튜브 URL 파싱 또는 노래방 검색
+  const doSearch = () => {
+    const raw = searchInput ? searchInput.value.trim() : '';
+    if (!raw) {
+      showRetroModal({
+        title: '⚠️ SEARCH NOTICE',
+        contentHTML: '곡명이나 가수명, 또는 유튜브 영상 링크를 입력해주세요.',
+        confirmText: '확인'
+      });
       return;
     }
 
     audioEngine.playMechanicalClick();
-    const fullQuery = encodeURIComponent(query + ' 노래방');
 
-    // 유튜브 검색 결과 임베드
-    if (karaokeFrame && placeholder) {
-      placeholder.style.display = 'none';
-      karaokeFrame.style.display = 'block';
-      // 유튜브 임베드 검색 리스트 주소
-      karaokeFrame.src = `https://www.youtube.com/embed?listType=search&list=${fullQuery}&autoplay=1`;
+    // 1. 유튜브 URL인지 판별 (youtu.be/xxx 또는 watch?v=xxx)
+    const ytMatch = raw.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+    if (ytMatch && ytMatch[1]) {
+      loadKaraokeVideo(ytMatch[1], '유튜브 노래방', 'YouTube Track');
+      return;
     }
+
+    // 2. 일반 검색어인 경우: 유튜브 노래방 검색 도우미 및 바로가기
+    const query = encodeURIComponent(raw + ' 노래방 MR');
+    showRetroModal({
+      title: '🎤 YOUTUBE KARAOKE',
+      contentHTML: `
+        <div style="font-size: 12px; line-height: 1.6;">
+          <p><strong>[${raw}]</strong> 노래방을 선택하세요.</p>
+          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+            <button id="modal-btn-open-yt" class="modal-action-btn" style="width: 100%; height: 36px; background: #dc2626; color: #fff; font-weight: bold;">
+              ▶ 유튜브 노래방 검색창 열기 (영상 링크 복사)
+            </button>
+            <div style="font-size: 10px; color: #94a3b8;">
+              * 유튜브에서 원하는 노래방 영상을 찾아 <strong>'공유 ➔ 링크 복사'</strong> 후 아래 입력창에 넣으시면 1초 만에 로드됩니다!
+            </div>
+            <input type="text" id="modal-yt-url-input" class="studio-input" placeholder="여기에 유튜브 영상 링크 붙여넣기" style="width: 100%;" />
+          </div>
+        </div>
+      `,
+      confirmText: '영상 로드하기',
+      cancelText: '취소',
+      onConfirm: () => {
+        const link = document.getElementById('modal-yt-url-input')?.value.trim();
+        if (link) {
+          const m = link.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+          if (m && m[1]) {
+            loadKaraokeVideo(m[1], raw, '노래방');
+            if (searchInput) searchInput.value = raw;
+          }
+        }
+      }
+    });
+
+    setTimeout(() => {
+      const openBtn = document.getElementById('modal-btn-open-yt');
+      if (openBtn) {
+        openBtn.onclick = () => {
+          window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank');
+        };
+      }
+    }, 100);
   };
 
   if (searchBtn) searchBtn.onclick = doSearch;
@@ -339,39 +447,73 @@ function setupStudioControls() {
     };
   }
 
-  // 키 조절 (-6 ~ +6)
+  // 유튜브 링크 직접 입력 버튼
+  const directLinkBtn = document.getElementById('studio-direct-link-btn');
+  if (directLinkBtn) {
+    directLinkBtn.onclick = () => {
+      showRetroModal({
+        title: '🔗 YOUTUBE LINK INPUT',
+        contentHTML: `
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 11px; color: #94a3b8;">유튜브 영상 주소(URL)를 입력해주세요:</div>
+            <input type="text" id="direct-yt-url" class="studio-input" placeholder="https://youtu.be/..." style="width: 100%;" />
+          </div>
+        `,
+        confirmText: '재생',
+        cancelText: '취소',
+        onConfirm: () => {
+          const val = document.getElementById('direct-yt-url')?.value.trim();
+          if (val) {
+            const m = val.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+            if (m && m[1]) {
+              loadKaraokeVideo(m[1], '커스텀 노래방', 'YouTube');
+            }
+          }
+        }
+      });
+    };
+  }
+
+  // ==================== 키 조절 로직 ====================
   const pitchValEl = document.getElementById('studio-pitch-val');
   const pitchDownBtn = document.getElementById('pitch-btn-down');
   const pitchUpBtn = document.getElementById('pitch-btn-up');
+  const pitchLiveVal = document.getElementById('pitch-live-val');
+  const pitchLiveDown = document.getElementById('pitch-live-down');
+  const pitchLiveUp = document.getElementById('pitch-live-up');
 
   const updatePitchDisplay = () => {
+    const sign = state.studioKeyShift > 0 ? `+${state.studioKeyShift}` : `${state.studioKeyShift}`;
     if (pitchValEl) {
-      const sign = state.studioKeyShift > 0 ? `+${state.studioKeyShift}` : `${state.studioKeyShift}`;
       pitchValEl.textContent = sign;
       pitchValEl.style.color = state.studioKeyShift === 0 ? 'var(--vfd-cyan)' : 'var(--vfd-amber)';
+    }
+    if (pitchLiveVal) {
+      pitchLiveVal.textContent = sign;
     }
     audioEngine.setKeyShift(state.studioKeyShift);
   };
 
-  if (pitchDownBtn) {
-    pitchDownBtn.onclick = () => {
-      audioEngine.playMechanicalClick();
-      if (state.studioKeyShift > -6) {
-        state.studioKeyShift--;
-        updatePitchDisplay();
-      }
-    };
-  }
+  const handlePitchDown = () => {
+    audioEngine.playMechanicalClick();
+    if (state.studioKeyShift > -6) {
+      state.studioKeyShift--;
+      updatePitchDisplay();
+    }
+  };
 
-  if (pitchUpBtn) {
-    pitchUpBtn.onclick = () => {
-      audioEngine.playMechanicalClick();
-      if (state.studioKeyShift < 6) {
-        state.studioKeyShift++;
-        updatePitchDisplay();
-      }
-    };
-  }
+  const handlePitchUp = () => {
+    audioEngine.playMechanicalClick();
+    if (state.studioKeyShift < 6) {
+      state.studioKeyShift++;
+      updatePitchDisplay();
+    }
+  };
+
+  if (pitchDownBtn) pitchDownBtn.onclick = handlePitchDown;
+  if (pitchUpBtn) pitchUpBtn.onclick = handlePitchUp;
+  if (pitchLiveDown) pitchLiveDown.onclick = handlePitchDown;
+  if (pitchLiveUp) pitchLiveUp.onclick = handlePitchUp;
 
   // 에코 및 볼륨 슬라이더
   const echoSlider = document.getElementById('studio-slider-echo');
@@ -392,46 +534,131 @@ function setupStudioControls() {
     };
   }
 
-  // 대형 레드 녹음 버튼
+  // ==================== 7번 & 3번 요구사항: 녹음 모드 전환 & 타이머 & 3대 버튼 ====================
+  const studioView = document.getElementById('studio-view-container');
   const launchRecBtn = document.getElementById('studio-btn-launch');
+  const liveTimerEl = document.getElementById('live-rec-timer');
+  const livePauseBtn = document.getElementById('studio-live-btn-pause');
+  const livePauseIcon = document.getElementById('live-pause-icon');
+  const livePauseLabel = document.getElementById('live-pause-label');
+  const liveCancelBtn = document.getElementById('studio-live-btn-cancel');
+  const liveFinishBtn = document.getElementById('studio-live-btn-finish');
+
+  let recTimerInterval = null;
+  let recSeconds = 0;
+  let isRecPaused = false;
+
+  const startRecTimer = () => {
+    clearInterval(recTimerInterval);
+    recSeconds = 0;
+    if (liveTimerEl) liveTimerEl.textContent = '00:00';
+    recTimerInterval = setInterval(() => {
+      if (!isRecPaused) {
+        recSeconds++;
+        if (liveTimerEl) liveTimerEl.textContent = formatTime(recSeconds);
+      }
+    }, 1000);
+  };
+
+  const stopRecTimer = () => {
+    clearInterval(recTimerInterval);
+  };
+
+  // [노래 시작!] 클릭 시 -> 2/3 대형 뷰 전환 & 녹음 시작
   if (launchRecBtn) {
     launchRecBtn.onclick = async () => {
       audioEngine.playMechanicalClick();
 
-      if (!state.isRecording) {
-        // [노래 시작!]
-        try {
-          await audioEngine.startRecording();
-          state.isRecording = true;
-          launchRecBtn.classList.add('recording-active');
-          launchRecBtn.innerHTML = `<span>■</span> 노래 완료 및 테이프 저장`;
-        } catch (err) {
-          showRetroModal({
-            title: '❌ MIC PERMISSION REQUIRED',
-            contentHTML: `
-              <p>마이크 수음 권한이 필요합니다.</p>
-              <p style="font-size: 11px; color: #a0aec0; margin-top: 6px;">브라우저 주소창의 마이크 아이콘을 눌러 권한을 허용해주세요.</p>
-            `,
-            confirmText: '확인'
-          });
-        }
-      } else {
-        // [노래 완료 및 저장]
-        const blob = await audioEngine.stopRecording();
-        state.isRecording = false;
-        launchRecBtn.classList.remove('recording-active');
-        launchRecBtn.innerHTML = `<span>●</span> 노래 시작! (REC)`;
+      try {
+        await audioEngine.startRecording();
+        state.isRecording = true;
+        isRecPaused = false;
 
-        // 저장 모달 팝업
-        const titleVal = searchInput ? searchInput.value.trim() : '추억의 명곡';
-        promptSaveTapeModal(titleVal || '녹음된 노래', blob);
+        // 7번 요구사항: 스튜디오 뷰에 대형 레이아웃 클래스 부여 (영상 2/3 확장)
+        if (studioView) {
+          studioView.classList.add('studio-recording-mode');
+        }
+
+        startRecTimer();
+
+        // 일시정지 버튼 초기화
+        if (livePauseBtn) livePauseBtn.classList.remove('is-paused');
+        if (livePauseIcon) livePauseIcon.textContent = '❚❚';
+        if (livePauseLabel) livePauseLabel.textContent = '일시정지';
+
+      } catch (err) {
+        showRetroModal({
+          title: '❌ 마이크 권한 필요',
+          contentHTML: `
+            <p>마이크 수음 권한이 필요합니다.</p>
+            <p style="font-size: 11px; color: #a0aec0; margin-top: 6px;">브라우저 상단의 마이크 권한을 허용해주세요.</p>
+          `,
+          confirmText: '확인'
+        });
       }
+    };
+  }
+
+  // 1. [❚❚ 일시정지 / ▶ 계속] 버튼
+  if (livePauseBtn) {
+    livePauseBtn.onclick = () => {
+      audioEngine.playMechanicalClick();
+      if (!isRecPaused) {
+        // 일시정지 상태로 변경
+        audioEngine.pauseRecording();
+        isRecPaused = true;
+        livePauseBtn.classList.add('is-paused');
+        if (livePauseIcon) livePauseIcon.textContent = '▶';
+        if (livePauseLabel) livePauseLabel.textContent = '계속 부르기';
+      } else {
+        // 녹음 재개
+        audioEngine.resumeRecording();
+        isRecPaused = false;
+        livePauseBtn.classList.remove('is-paused');
+        if (livePauseIcon) livePauseIcon.textContent = '❚❚';
+        if (livePauseLabel) livePauseLabel.textContent = '일시정지';
+      }
+    };
+  }
+
+  // 2. [■ 취소/리셋] 버튼
+  if (liveCancelBtn) {
+    liveCancelBtn.onclick = () => {
+      audioEngine.playMechanicalClick();
+      showRetroModal({
+        title: '⚠️ 녹음 취소',
+        contentHTML: '현재 녹음 중인 오디오를 버리고 처음으로 돌아가시겠습니까?',
+        confirmText: '녹음 버리기',
+        cancelText: '계속 노래하기',
+        onConfirm: () => {
+          stopRecTimer();
+          audioEngine.cancelRecording();
+          state.isRecording = false;
+          if (studioView) studioView.classList.remove('studio-recording-mode');
+        }
+      });
+    };
+  }
+
+  // 3. [✓ 노래 완료 및 테이프 저장] 버튼
+  if (liveFinishBtn) {
+    liveFinishBtn.onclick = async () => {
+      audioEngine.playMechanicalClick();
+      stopRecTimer();
+      const blob = await audioEngine.stopRecording();
+      state.isRecording = false;
+      if (studioView) studioView.classList.remove('studio-recording-mode');
+
+      // 저장 모달 팝업
+      const titleVal = currentKaraokeTitle || (searchInput ? searchInput.value.trim() : '나의 노래방');
+      const artistVal = currentKaraokeArtist || '원곡 가수';
+      promptSaveTapeModal(titleVal, blob, artistVal);
     };
   }
 }
 
 // 녹음 완료 후 저장 정보 입력 모달
-function promptSaveTapeModal(defaultTitle, audioBlob) {
+function promptSaveTapeModal(defaultTitle, audioBlob, defaultArtist = '원곡 가수') {
   const formHTML = `
     <div style="display: flex; flex-direction: column; gap: 12px;">
       <div>
@@ -440,7 +667,7 @@ function promptSaveTapeModal(defaultTitle, audioBlob) {
       </div>
       <div>
         <label style="font-size: 11px; color: #a0aec0; display: block; margin-bottom: 4px;">원곡 가수</label>
-        <input id="modal-save-artist" type="text" placeholder="원곡 가수명" class="studio-input" style="width: 100%;" />
+        <input id="modal-save-artist" type="text" value="${defaultArtist}" class="studio-input" style="width: 100%;" />
       </div>
       <div>
         <label style="font-size: 11px; color: #a0aec0; display: block; margin-bottom: 4px;">플레이리스트 폴더</label>
@@ -867,4 +1094,126 @@ function toggleAppFullscreen() {
       document.webkitExitFullscreen();
     }
   }
+}
+
+// ==================== 6번: 블루투스/오디오 장치 자동 감지 ====================
+async function initBluetoothAudioDetector() {
+  const deviceNameEl = document.getElementById('bt-device-name');
+  const iconEl = document.getElementById('bt-icon');
+
+  const updateDevices = async () => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+        if (deviceNameEl) deviceNameEl.textContent = '내장 오디오';
+        return;
+      }
+
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      let foundBt = null;
+
+      for (const dev of devices) {
+        const label = (dev.label || '').trim();
+        const l = label.toLowerCase();
+        if (l.includes('bluetooth') || l.includes('buds') || l.includes('airpods') || l.includes('car') || l.includes('hands-free') || l.includes('wireless') || l.includes('bt') || l.includes('headset')) {
+          foundBt = label;
+          break;
+        }
+      }
+
+      // 첫 번째 활성 오디오 입력/출력 라벨이 있는 경우 표시
+      if (!foundBt) {
+        const anyAudio = devices.find(d => (d.kind === 'audioinput' || d.kind === 'audiooutput') && d.label);
+        if (anyAudio && anyAudio.label) {
+          foundBt = anyAudio.label;
+        }
+      }
+
+      if (foundBt) {
+        const l = foundBt.toLowerCase();
+        if (l.includes('car')) {
+          if (iconEl) iconEl.textContent = '🚗';
+        } else if (l.includes('mic') || l.includes('마이크')) {
+          if (iconEl) iconEl.textContent = '🎤';
+        } else {
+          if (iconEl) iconEl.textContent = '🎧';
+        }
+
+        // 라벨 정리 (너무 길면 잘라내기)
+        let display = foundBt.replace(/default - /i, '').replace(/communications - /i, '');
+        if (display.length > 12) {
+          display = display.substring(0, 10) + '..';
+        }
+        if (deviceNameEl) deviceNameEl.textContent = display;
+      } else {
+        if (iconEl) iconEl.textContent = '📱';
+        if (deviceNameEl) deviceNameEl.textContent = '내장 오디오';
+      }
+    } catch (e) {
+      console.warn('Bluetooth/Audio device detect error:', e);
+      if (deviceNameEl) deviceNameEl.textContent = '오디오 준비됨';
+    }
+  };
+
+  updateDevices();
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+    navigator.mediaDevices.addEventListener('devicechange', updateDevices);
+  }
+}
+
+// ==================== 2번: 스킨 오터치 방지 전용 설정 모달 ====================
+function showSettingsModal() {
+  const currentTheme = document.body.getAttribute('data-theme') || 'classic-silver';
+  const settingsHTML = `
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div class="setting-item" style="border-bottom: 1px solid #232733; padding-bottom: 10px;">
+        <div>
+          <div class="setting-title" style="font-size: 13px; font-weight: bold; color: #fff;">데크 섀시 스킨 테마</div>
+          <div class="setting-desc" style="font-size: 10px; color: #7b8599;">카세트 데크 외형 금속 패널 질감</div>
+        </div>
+        <select id="modal-theme-select" class="setting-select">
+          <option value="classic-silver" ${currentTheme === 'classic-silver' ? 'selected' : ''}>클래식 실버 메탈</option>
+          <option value="matte-black" ${currentTheme === 'matte-black' ? 'selected' : ''}>매트 블랙</option>
+          <option value="champagne-gold" ${currentTheme === 'champagne-gold' ? 'selected' : ''}>샴페인 골드</option>
+        </select>
+      </div>
+
+      <div class="setting-item" style="border-bottom: 1px solid #232733; padding-bottom: 10px;">
+        <div>
+          <div class="setting-title" style="font-size: 13px; font-weight: bold; color: #fff;">테이프 모터 소음 (Hiss)</div>
+          <div class="setting-desc" style="font-size: 10px; color: #7b8599;">재생 시 은은한 아날로그 테이프 모터 노이즈</div>
+        </div>
+        <input type="checkbox" id="modal-hiss-toggle" ${audioEngine.isHissEnabled ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer;" />
+      </div>
+
+      <button id="modal-btn-open-changelog" class="modal-action-btn" style="width: 100%; height: 36px; background: #1e2432; color: var(--vfd-cyan); font-weight: bold;">
+        📦 버전 및 업데이트 내역 확인 (Changelog)
+      </button>
+    </div>
+  `;
+
+  showRetroModal({
+    title: '⚙️ DECK CONFIGURATION',
+    contentHTML: settingsHTML,
+    confirmText: '설정 저장',
+    onConfirm: () => {
+      const sel = document.getElementById('modal-theme-select');
+      if (sel) {
+        document.body.setAttribute('data-theme', sel.value);
+      }
+      const hiss = document.getElementById('modal-hiss-toggle');
+      if (hiss) {
+        audioEngine.toggleTapeHiss(hiss.checked);
+      }
+    }
+  });
+
+  setTimeout(() => {
+    const changelogBtn = document.getElementById('modal-btn-open-changelog');
+    if (changelogBtn) {
+      changelogBtn.onclick = () => {
+        closeRetroModal();
+        setTimeout(showChangelogModal, 200);
+      };
+    }
+  }, 100);
 }

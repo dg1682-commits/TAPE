@@ -258,8 +258,8 @@ class AudioEngine {
       this.micDelayNode.connect(this.micWetGainNode);
       this.micWetGainNode.connect(this.micMasterNode);
 
-      // 마스터 노드를 스피커와 VU 미터에 연결
-      this.micMasterNode.connect(this.ctx.destination);
+      // 하울링(새소리 피드백) 방지:
+      // 스마트폰 스피커(ctx.destination)로 직접 출력하지 않고, VU 미터 분석기 및 녹음 버스에만 연결!
       this.micMasterNode.connect(this.splitterNode);
 
       return true;
@@ -443,10 +443,46 @@ class AudioEngine {
     this.startVuMeter();
   }
 
+  pauseRecording() {
+    if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+      this.mediaRecorder.pause();
+    }
+  }
+
+  resumeRecording() {
+    if (this.mediaRecorder && this.mediaRecorder.state === 'paused') {
+      this.mediaRecorder.resume();
+    }
+  }
+
+  cancelRecording() {
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+      try { this.mediaRecorder.stop(); } catch(e) {}
+    }
+    this.recordedChunks = [];
+    this.isRecording = false;
+    this.stopVuMeter();
+    this.shutdownMicrophone();
+  }
+
+  shutdownMicrophone() {
+    if (this.micStream) {
+      this.micStream.getTracks().forEach(track => {
+        try { track.stop(); } catch (e) {}
+      });
+      this.micStream = null;
+    }
+    if (this.micSourceNode) {
+      try { this.micSourceNode.disconnect(); } catch(e) {}
+      this.micSourceNode = null;
+    }
+  }
+
   stopRecording() {
     return new Promise((resolve) => {
       if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
         this.isRecording = false;
+        this.shutdownMicrophone();
         resolve(null);
         return;
       }
@@ -456,6 +492,8 @@ class AudioEngine {
         const blob = new Blob(this.recordedChunks, { type });
         this.recordedChunks = [];
         this.isRecording = false;
+        this.stopVuMeter();
+        this.shutdownMicrophone();
         resolve(blob);
       };
 

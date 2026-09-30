@@ -34,34 +34,29 @@
       <div class="chassis-screw screw-3"></div>
       <div class="chassis-screw screw-4"></div>
 
-      <!-- 기기 상단 헤더 바 (브랜드 & 에어벤트 & LED) -->
+      <!-- 기기 상단 헤더 바 (브랜드 & 블루투스 & 종료 & 전체화면) -->
       <header class="deck-top-bar">
         <div class="brand-section">
           <span class="brand-logo">TAPE-SING</span>
-          <span class="brand-model">RS-M85 HI-FI STEREO</span>
-          <div class="deck-air-vents">
-            <div class="vent-slot"></div>
-            <div class="vent-slot"></div>
-            <div class="vent-slot"></div>
-            <div class="vent-slot"></div>
-            <div class="vent-slot"></div>
-          </div>
+          <span class="brand-model">RS-M85</span>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button id="btn-fullscreen-toggle" class="btn-fullscreen-pill" title="브라우저 주소창 숨기기 (전체화면)">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <!-- 6. 블루투스/오디오 장치 표시 -->
+          <div id="bt-device-pill" class="bt-device-pill" title="현재 연결된 블루투스/마이크/오디오 장치">
+            <span id="bt-icon">🎧</span>
+            <span id="bt-device-name">내장 오디오</span>
+          </div>
+
+          <!-- 전체화면 토글 버튼 -->
+          <button id="btn-fullscreen-toggle" class="btn-top-pill" title="브라우저 주소창 숨기기">
             <span>⛶</span> 전체화면
           </button>
 
-          <div class="firebase-badge" title="Firebase 클라우드 실시간 동기화">
-            <div class="firebase-dot"></div>
-            <span>CLOUD DB</span>
-          </div>
-
-          <div class="power-indicator">
-            <div class="led-power"></div>
-            <span>ON</span>
-          </div>
+          <!-- 5. 앱 종료 버튼 -->
+          <button id="btn-app-exit" class="btn-top-pill btn-exit" title="앱 종료">
+            <span>⏻</span> 종료
+          </button>
         </div>
       </header>
 
@@ -70,15 +65,11 @@
 
         <!-- 1. [◁◁] 대시보드 뷰 (메인) -->
         <section class="deck-view dashboard-view active" data-view-panel="dashboard">
-          <!-- 좌측: 회전하는 대형 카세트테이프 -->
           <div class="dash-left-stage">
             <div class="stage-badge">★ FEATURED CASSETTE</div>
-            <div id="dash-stage-container">
-              <!-- JS 동적 렌더링 -->
-            </div>
+            <div id="dash-stage-container"></div>
           </div>
 
-          <!-- 우측: VFD 정보 패널 & 레벨 미터 -->
           <div class="dash-right-info">
             <div class="vfd-panel">
               <div class="vfd-header">
@@ -121,7 +112,6 @@
               </div>
             </div>
 
-            <!-- 빠른 액션 버튼 -->
             <div class="dash-quick-actions">
               <button class="dash-action-btn" id="dash-btn-play-now">
                 <span>▶</span> 이 테이프 바로 감상
@@ -133,64 +123,129 @@
           </div>
         </section>
 
-        <!-- 2. [●] 스튜디오 뷰 (노래/녹음) -->
-        <section class="deck-view studio-view" data-view-panel="studio">
-          <!-- 좌측: 유튜브 노래방 모니터 화면 -->
-          <div class="studio-monitor-section">
-            <div class="studio-search-bar">
-              <input type="text" id="studio-search-input" class="studio-input" placeholder="노래 제목 또는 가수명 입력 (예: 사랑했지만, 그대에게)" />
+        <!-- 2. [●] 스튜디오 뷰 (노래/녹음: 평상시 & 녹음 시 2/3 대형 뷰 전환) -->
+        <section class="deck-view studio-view" data-view-panel="studio" id="studio-view-container">
+          <!-- 좌측: 모니터 화면 (평상시 55%, 녹음 시 70% 확장되어 가사 시원하게 표기) -->
+          <div class="studio-monitor-section" id="studio-monitor-box">
+            <!-- 검색 및 빠른 노래방 칩 (녹음 중에는 숨김) -->
+            <div class="studio-search-bar" id="studio-search-controls">
+              <input type="text" id="studio-search-input" class="studio-input" placeholder="곡명/가수 검색 또는 유튜브 링크 붙여넣기" />
               <button id="studio-search-btn" class="studio-btn-search">
-                <span>🔍</span> 노래방 검색
+                <span>🔍</span> 검색
+              </button>
+              <button id="studio-direct-link-btn" class="studio-btn-search" style="background: #1e2432;" title="유튜브 링크 직접 입력">
+                <span>🔗</span> 링크
               </button>
             </div>
 
-            <div class="studio-screen-frame">
+            <!-- 인기 애창곡 퀵 선택 칩 (임베드 100% 보장 영상들) -->
+            <div class="karaoke-quick-chips" id="karaoke-quick-chips">
+              <span class="chip-label">추천곡:</span>
+              <button class="karaoke-chip" data-vid="W3q8Od5qJio" data-title="그대에게" data-artist="신해철">그대에게</button>
+              <button class="karaoke-chip" data-vid="r2K4J-ZgD2E" data-title="서른 즈음에" data-artist="김광석">서른 즈음에</button>
+              <button class="karaoke-chip" data-vid="0S39t-v8h_o" data-title="가시" data-artist="버즈">버즈 가시</button>
+              <button class="karaoke-chip" data-vid="bz_45pYx_aM" data-title="좋니" data-artist="윤종신">좋니</button>
+              <button class="karaoke-chip" data-vid="3bNITQR4Uso" data-title="Plastic Love" data-artist="Mariya">City Pop</button>
+            </div>
+
+            <!-- 노래방 영상 모니터 화면 -->
+            <div class="studio-screen-frame" id="studio-screen-frame">
               <div class="karaoke-placeholder" id="karaoke-placeholder">
                 <div class="placeholder-icon">🎤</div>
-                <div style="font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">노래방 검색어로 곡을 검색하세요</div>
-                <div style="font-size: 11px;">검색어 뒤에 '+ 노래방'이 자동 결합되어 반주 영상이 모니터에 로드됩니다.</div>
+                <div style="font-weight: 700; color: #cbd5e1; font-size: 13px; margin-bottom: 2px;">노래방 곡을 선택하세요</div>
+                <div style="font-size: 10px; color: #7b8599;">상단 추천곡을 누르거나 곡명 검색/유튜브 링크를 넣으면 가사 영상이 재생됩니다.</div>
               </div>
-              <iframe id="karaoke-embed-frame" style="display: none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+              <iframe id="karaoke-embed-frame" style="display: none;" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
             </div>
           </div>
 
-          <!-- 우측: 컨트롤 데크 (키 조절, 에코, 마이크, 대형 레드 녹음 버튼) -->
-          <div class="studio-ctrl-section">
-            <!-- 키(피치) 컨트롤 -->
-            <div class="control-deck-group">
-              <div class="group-title">
-                <span>KEY PITCH SHIFT</span>
-                <span style="font-size: 10px; color: #8892b0;">WEB AUDIO API</span>
-              </div>
-              <div class="pitch-control-row">
-                <button class="pitch-btn" id="pitch-btn-down">♭</button>
-                <div class="pitch-display">
-                  <span class="pitch-semitone" id="studio-pitch-val">0</span>
-                  <span class="pitch-label">KEY OFFSET</span>
+          <!-- 우측: 컨트롤 데크 (평상시 세팅 ➔ 녹음 중에는 3번/7번 전용 컨트롤로 변신) -->
+          <div class="studio-ctrl-section" id="studio-ctrl-box">
+
+            <!-- A. 평상시 프리-세팅 패널 -->
+            <div id="studio-idle-panel" style="display: flex; flex-direction: column; height: 100%; gap: 6px;">
+              <!-- 키 피치 조절 -->
+              <div class="control-deck-group">
+                <div class="group-title">
+                  <span>KEY PITCH SHIFT</span>
+                  <span style="font-size: 9px; color: #64748b;">WEB AUDIO</span>
                 </div>
-                <button class="pitch-btn" id="pitch-btn-up">♯</button>
+                <div class="pitch-control-row">
+                  <button class="pitch-btn" id="pitch-btn-down">♭</button>
+                  <div class="pitch-display">
+                    <span class="pitch-semitone" id="studio-pitch-val">0</span>
+                    <span class="pitch-label">KEY</span>
+                  </div>
+                  <button class="pitch-btn" id="pitch-btn-up">♯</button>
+                </div>
+              </div>
+
+              <!-- 마이크 & 에코 -->
+              <div class="control-deck-group">
+                <div class="group-title">MIC & KARAOKE ECHO</div>
+                <div class="slider-row">
+                  <label>MIC VOL</label>
+                  <input type="range" id="studio-slider-mic" class="studio-range" min="0" max="2" step="0.05" value="1.0" />
+                </div>
+                <div class="slider-row">
+                  <label>ECHO</label>
+                  <input type="range" id="studio-slider-echo" class="studio-range" min="0" max="1" step="0.05" value="0.3" />
+                </div>
+              </div>
+
+              <!-- 대형 레드 노래 시작 버튼 -->
+              <div class="studio-launch-bar">
+                <button class="btn-big-rec" id="studio-btn-launch">
+                  <span>●</span> 노래 시작! (REC)
+                </button>
               </div>
             </div>
 
-            <!-- 마이크 & 에코 슬라이더 -->
-            <div class="control-deck-group">
-              <div class="group-title">MIC & KARAOKE ECHO</div>
-              <div class="slider-row">
-                <label>MIC VOL</label>
-                <input type="range" id="studio-slider-mic" class="studio-range" min="0" max="2" step="0.05" value="1.0" />
+            <!-- B. 7번 요구사항: 녹음 진행 중 전용 우측 컨트롤 패널 (일시정지, 중지, 완료) -->
+            <div id="studio-live-panel" style="display: none; flex-direction: column; height: 100%; justify-content: space-between; gap: 8px;">
+              <!-- 실시간 녹음 상태 배지 & 타이머 -->
+              <div class="live-rec-header">
+                <div class="live-rec-indicator">
+                  <div class="rec-dot-blink"></div>
+                  <span>RECORDING</span>
+                </div>
+                <div class="live-rec-timer" id="live-rec-timer">00:00</div>
               </div>
-              <div class="slider-row">
-                <label>ECHO LEVEL</label>
-                <input type="range" id="studio-slider-echo" class="studio-range" min="0" max="1" step="0.05" value="0.4" />
+
+              <!-- 녹음 전용 3대 컨트롤 버튼 (3번 요구사항) -->
+              <div class="live-controls-bank">
+                <!-- 1. 일시정지 / 재개 버튼 -->
+                <button class="btn-live-action btn-live-pause" id="studio-live-btn-pause">
+                  <span id="live-pause-icon">❚❚</span>
+                  <span id="live-pause-label">일시정지</span>
+                </button>
+
+                <!-- 2. 중지 / 취소 버튼 -->
+                <button class="btn-live-action btn-live-cancel" id="studio-live-btn-cancel">
+                  <span>■</span>
+                  <span>취소/리셋</span>
+                </button>
+
+                <!-- 3. 완료 및 테이프 저장 버튼 -->
+                <button class="btn-live-action btn-live-finish" id="studio-live-btn-finish">
+                  <span>✓</span>
+                  <span>노래 완료 (저장)</span>
+                </button>
+              </div>
+
+              <!-- 실시간 미니 키 조절 -->
+              <div class="control-deck-group" style="padding: 4px 8px; margin-top: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 9px; color: #8892b0;">KEY PITCH</span>
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <button class="pitch-btn" style="width: 22px; height: 22px; font-size: 11px;" id="pitch-live-down">♭</button>
+                    <span id="pitch-live-val" style="font-family: var(--font-display); font-size: 13px; color: var(--vfd-cyan); min-width: 18px; text-align: center;">0</span>
+                    <button class="pitch-btn" style="width: 22px; height: 22px; font-size: 11px;" id="pitch-live-up">♯</button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- 대형 레드 발광 녹음 버튼 -->
-            <div class="studio-launch-bar">
-              <button class="btn-big-rec" id="studio-btn-launch">
-                <span>●</span> 노래 시작! (REC)
-              </button>
-            </div>
           </div>
         </section>
 

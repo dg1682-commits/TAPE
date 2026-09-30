@@ -229,17 +229,25 @@ html, body {
   border-radius: 1px;
 }
 
-.power-indicator {
+.bt-device-pill {
+  height: 22px;
+  padding: 0 8px;
+  background: #141722;
+  border: 1px solid #2d3748;
+  border-radius: 12px;
+  color: #38bdf8;
+  font-size: 9px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 9px;
-  font-weight: 700;
-  color: #64748b;
-  letter-spacing: 0.5px;
+  max-width: 140px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.btn-fullscreen-pill {
+.btn-top-pill {
   height: 22px;
   padding: 0 8px;
   background: #1e2430;
@@ -255,29 +263,19 @@ html, body {
   gap: 4px;
   transition: all 0.12s ease;
 }
-.btn-fullscreen-pill:active {
-  background: #004436;
+.btn-top-pill:active {
   transform: scale(0.96);
 }
 
-.led-power {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 6px #22c55e;
+.btn-top-pill.btn-exit {
+  background: #3f1214;
+  border-color: #7f1d1d;
+  color: #f87171;
 }
-
-.firebase-badge {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 9px;
-  font-weight: 700;
-  background: #14171f;
-  color: var(--vfd-cyan);
-  padding: 2px 7px;
-  border-radius: 10px;
+.btn-top-pill.btn-exit:active {
+  background: #991b1b;
+  color: #fff;
+}
   border: 1px solid #232a38;
 }
 .firebase-dot {
@@ -706,44 +704,154 @@ html, body {
   height: 4px;
 }
 
-/* BIG RED RECORDING LAUNCH BUTTON (슬림화) */
-.studio-launch-bar {
-  margin-top: auto;
+.karaoke-quick-chips {
   display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow-x: auto;
+  padding: 2px 0;
+  scrollbar-width: none;
+}
+.karaoke-quick-chips::-webkit-scrollbar { display: none; }
+
+.chip-label {
+  font-size: 9px;
+  color: var(--vfd-amber);
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.btn-big-rec {
-  flex: 1;
-  height: 38px;
-  background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
-  border: 1px solid #ef4444;
-  border-radius: 6px;
-  color: #ffffff;
+.karaoke-chip {
+  height: 22px;
+  padding: 0 8px;
+  background: #181d27;
+  border: 1px solid #2b3345;
+  border-radius: 11px;
+  color: #cbd5e1;
+  font-size: 9px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  transition: all 0.1s ease;
+}
+.karaoke-chip:active {
+  background: var(--vfd-cyan-dim);
+  border-color: var(--vfd-cyan);
+  color: #fff;
+}
+
+/* 7번 요구사항: 녹음 중일 때 영상 2/3 대형 뷰 (가사 시원하게 표기) */
+.studio-view.studio-recording-mode #studio-monitor-box {
+  flex: 2.3; /* 화면의 약 70% */
+}
+.studio-view.studio-recording-mode #studio-ctrl-box {
+  flex: 0.9; /* 화면의 약 30% */
+}
+.studio-view.studio-recording-mode #studio-search-controls,
+.studio-view.studio-recording-mode #karaoke-quick-chips {
+  display: none !important;
+}
+.studio-view.studio-recording-mode #studio-idle-panel {
+  display: none !important;
+}
+.studio-view.studio-recording-mode #studio-live-panel {
+  display: flex !important;
+}
+
+/* 실시간 녹음 패널 스타일 */
+.live-rec-header {
+  background: #0d0f14;
+  border: 1px solid #2a1618;
+  border-radius: 5px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.live-rec-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 900;
+  color: #ff3b4b;
   letter-spacing: 1px;
+}
+
+.rec-dot-blink {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b4b;
+  box-shadow: 0 0 8px #ff3b4b;
+  animation: blink-rec 0.9s infinite alternate ease-in-out;
+}
+
+@keyframes blink-rec {
+  0% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+.live-rec-timer {
+  font-family: var(--font-vfd);
+  font-size: 20px;
+  color: var(--vfd-cyan);
+  text-shadow: var(--vfd-glow);
+  letter-spacing: 2px;
+}
+
+/* 녹음 3대 액션 버튼 뱅크 */
+.live-controls-bank {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+
+.btn-live-action {
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  color: #ffffff;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.4);
-  transition: all 0.12s ease;
+  gap: 8px;
+  transition: all 0.1s ease;
 }
 
-.btn-big-rec:active {
+.btn-live-pause {
+  background: linear-gradient(180deg, #d97706 0%, #b45309 100%);
+  border-color: #f59e0b;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.4);
+}
+.btn-live-pause.is-paused {
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: #3b82f6;
+}
+
+.btn-live-cancel {
+  background: #272a34;
+  border-color: #404656;
+  color: #cbd5e1;
+}
+
+.btn-live-finish {
+  background: linear-gradient(180deg, #059669 0%, #047857 100%);
+  border-color: #10b981;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4);
+}
+.btn-live-finish:active {
   transform: translateY(1px);
-}
-
-.btn-big-rec.recording-active {
-  background: #e11d48;
-  animation: pulse-red-glow 1s infinite alternate;
-}
-
-@keyframes pulse-red-glow {
-  0% { box-shadow: 0 0 6px rgba(225, 29, 72, 0.5); }
-  100% { box-shadow: 0 0 16px rgba(225, 29, 72, 0.9); }
 }
 
 /* ==========================================================================
@@ -1015,7 +1123,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 12px;
+  padding: 0 42px; /* 스마트폰 가로 그립 시 우측/좌측 손바닥 오터치 방지 세이프존 */
   gap: 8px;
   z-index: 10;
   flex-shrink: 0;
