@@ -352,57 +352,54 @@ function renderDashboard() {
 
 // ==================== 국내가요 노래방 애창곡 & 최신 인기차트 TOP 50 데이터 ====================
 export const CURATED_KARAOKE_DB = [
-  { rank: 1, title: '나는 아픈 건 딱 질색이니까', artist: '(여자)아이들', vid: 'qL4wH9gQx-U', keywords: ['아픈건딱질색이니까', '아이들', '여자아이들', 'fate'] },
-  { rank: 2, title: '첫 만남은 계획대로 되지 않아', artist: 'TWS (투어스)', vid: 'J0O0X7jPq1c', keywords: ['첫만남은', '투어스', 'tws', '첫만남은계획대로'] },
-  { rank: 3, title: '밤양갱', artist: '비비 (BIBI)', vid: '4kL_v_6p9oY', keywords: ['밤양갱', '비비', 'bibi'] },
-  { rank: 4, title: '고민중독', artist: 'QWER', vid: 'ImuWa3SJulY', keywords: ['고민중독', 'qwer'] },
-  { rank: 5, title: '에피소드', artist: '이무진', vid: 'rD-cT-0Q_50', keywords: ['에피소드', '이무진'] },
-  { rank: 6, title: '사건의 지평선', artist: '윤하', vid: '1-4Y6n60P2o', keywords: ['사건의지평선', '윤하'] },
-  { rank: 7, title: '사랑은 늘 도망가', artist: '임영웅', vid: 'K_xTe4q2hP8', keywords: ['사랑은늘도망가', '임영웅'] },
-  { rank: 8, title: '한 페이지가 될 수 있게', artist: 'DAY6 (데이식스)', vid: 'vnS_6zGheEg', keywords: ['한페이지가될수있게', '데이식스', 'day6'] },
+  { rank: 1, title: '나는 아픈 건 딱 질색이니까', artist: '(여자)아이들', vid: 'F033g9QJq0c', keywords: ['아픈건딱질색이니까', '아이들', '여자아이들', 'fate', 'ㄴㄴㅇㅍㄱㄸㅈㅅㅇㄴㄲ'] },
+  { rank: 2, title: '첫 만남은 계획대로 되지 않아', artist: 'TWS (투어스)', vid: 'FqS2h5sM7_M', keywords: ['첫만남은', '투어스', 'tws', '첫만남은계획대로', 'ㅊㅁㄴㅇㄱㅎㄷㄹㄷㅈㅇㅇ'] },
+  { rank: 3, title: '밤양갱', artist: '비비 (BIBI)', vid: '4kL_v_6p9oY', keywords: ['밤양갱', '비비', 'bibi', 'ㅂㅇㄱ'] },
+  { rank: 4, title: '고민중독', artist: 'QWER', vid: 'ImuWa3SJulY', keywords: ['고민중독', 'qwer', 'ㄱㅁㅈㄷ'] },
+  { rank: 5, title: '에피소드', artist: '이무진', vid: 'rD-cT-0Q_50', keywords: ['에피소드', '이무진', 'ㅇㅍㅅㄷ'] },
+  { rank: 6, title: '사건의 지평선', artist: '윤하', vid: '1-4Y6n60P2o', keywords: ['사건의지평선', '윤하', 'ㅅㄱㅇㅈㅍㅅ'] },
+  { rank: 7, title: '사랑은 늘 도망가', artist: '임영웅', vid: 'K_xTe4q2hP8', keywords: ['사랑은늘도망가', '임영웅', 'ㅅㄹㅇㄴㄷㅁㄱ'] },
+  { rank: 8, title: '한 페이지가 될 수 있게', artist: 'DAY6 (데이식스)', vid: 'vnS_6zGheEg', keywords: ['한페이지가될수있게', '데이식스', 'day6', 'ㅎㅍㅇㅈㄱㄷㅅㅇㄱ'] },
   { rank: 9, title: 'Welcome to the Show', artist: 'DAY6 (데이식스)', vid: 'V0eGZ8hM0m8', keywords: ['웰컴투더쇼', 'welcometotheshow', 'day6', '데이식스'] },
-  { rank: 10, title: '예뻤어', artist: 'DAY6 (데이식스)', vid: 'BS7tz2rAQUI', keywords: ['예뻤어', '데이식스', 'day6'] },
-  { rank: 11, title: '비의 랩소디', artist: '임재현', vid: 'K9eE3d1i9m8', keywords: ['비의랩소디', '임재현'] },
-  { rank: 12, title: '헤어지자 말해요', artist: '박재정', vid: 'D9E1eZfM8y8', keywords: ['헤어지자말해요', '박재정'] },
-  { rank: 13, title: 'Supernova', artist: 'aespa (에스파)', vid: 'phuiAIQAxZ4', keywords: ['슈퍼노바', 'supernova', '에스파', 'aespa'] },
-  { rank: 14, title: 'Hype Boy', artist: 'NewJeans (뉴진스)', vid: '11cta61Wi0g', keywords: ['하입보이', 'hypeboy', '뉴진스', 'newjeans'] },
-  { rank: 15, title: 'Ditto', artist: 'NewJeans (뉴진스)', vid: 'pSUydWEq46E', keywords: ['디토', 'ditto', '뉴진스', 'newjeans'] },
-  { rank: 16, title: '서른 즈음에', artist: '김광석', vid: '4dHsW45mrfk', keywords: ['서른즈음에', '김광석'] },
-  { rank: 17, title: '그대에게', artist: '신해철 (무한궤도)', vid: 'QdzAMLBk-YE', keywords: ['그대에게', '신해철', '무한궤도'] },
-  { rank: 18, title: '가시', artist: '버즈 (Buzz)', vid: 'tOAn1IMGmK4', keywords: ['가시', '버즈', 'buzz', '민경훈'] },
-  { rank: 19, title: '좋니', artist: '윤종신', vid: 's1qYp3b_Q1Y', keywords: ['좋니', '윤종신'] },
-  { rank: 20, title: '응급실', artist: 'izi', vid: '1M4mYf_86nQ', keywords: ['응급실', 'izi', '이지', '쾌걸춘향'] },
-  { rank: 21, title: '소주 한 잔', artist: '임창정', vid: 'y5cZJpPqY_w', keywords: ['소주한잔', '임창정'] },
-  { rank: 22, title: '야생화', artist: '박효신', vid: '_hsr0ST6Mrc', keywords: ['야생화', '박효신'] },
-  { rank: 23, title: '너의 모든 순간', artist: '성시경', vid: 'sV9Q6v8o5a8', keywords: ['너의모든순간', '성시경'] },
-  { rank: 24, title: 'I AM', artist: 'IVE (아이브)', vid: '6ZUIwj3FlWY', keywords: ['아이엠', 'iam', '아이브', 'ive'] },
-  { rank: 25, title: '내 이름 맑음', artist: 'QWER', vid: 'v8N3Z0hG2i0', keywords: ['내이름맑음', 'qwer'] },
-  { rank: 26, title: '신호등', artist: '이무진', vid: 'SK6Sm2Ki9tI', keywords: ['신호등', '이무진'] },
-  { rank: 27, title: '취중고백', artist: '김민석 (멜로망스)', vid: 'aY7B0T_U1lU', keywords: ['취중고백', '김민석', '멜로망스'] },
-  { rank: 28, title: 'Love Lee', artist: 'AKMU (악뮤)', vid: 'EIz0GnyRRck', keywords: ['러브리', 'lovelee', '악뮤', 'akmu'] },
-  { rank: 29, title: '어떻게 이별까지 사랑하겠어', artist: 'AKMU (악뮤)', vid: 'm3DZsBw5bnE', keywords: ['어떻게이별까지사랑하겠어', '악뮤', 'akmu'] },
-  { rank: 30, title: '만약에', artist: '태연', vid: 'eZp0s2K1w0I', keywords: ['만약에', '태연', '소녀시대'] },
-  { rank: 31, title: '모든 날, 모든 순간', artist: '폴킴', vid: 'o_WfP6j8t2o', keywords: ['모든날모든순간', '폴킴'] },
-  { rank: 32, title: '체념', artist: '빅마마', vid: 'b_P7u9Z5w2Y', keywords: ['체념', '빅마마', '이영현'] },
-  { rank: 33, title: '안녕', artist: '폴킴', vid: 'l3jH1wU3P0I', keywords: ['안녕', '폴킴', '호텔델루나'] },
-  { rank: 34, title: '사랑앓이', artist: 'FT아일랜드', vid: 'uOa7e4h2Tks', keywords: ['사랑앓이', 'ft아일랜드', '이홍기'] },
-  { rank: 35, title: '가질 수 없는 너', artist: '뱅크', vid: 'd0x8z9Y2P0I', keywords: ['가질수없는너', '뱅크'] },
-  { rank: 36, title: '포장마차', artist: '황인욱', vid: 'q_7W0x9Z2pI', keywords: ['포장마차', '황인욱'] },
-  { rank: 37, title: '눈의 꽃', artist: '박효신', vid: 'j0P1y8Z2w3I', keywords: ['눈의꽃', '박효신', '미안하다사랑한다'] },
-  { rank: 38, title: '벌써 일년', artist: '브라운아이즈', vid: 'w2P0y9Z8x1I', keywords: ['벌써일년', '브라운아이즈', '나얼'] },
-  { rank: 39, title: '인형의 꿈', artist: '러브홀릭', vid: 't2W0y9X8z1I', keywords: ['인형의꿈', '러브홀릭', '일기예보'] },
-  { rank: 40, title: '하늘을 달리다', artist: '이적', vid: 'v1W0z8P2y9I', keywords: ['하늘을달리다', '이적'] },
-  { rank: 41, title: '다행이다', artist: '이적', vid: 'c0P2w8Z1y9I', keywords: ['다행이다', '이적'] },
-  { rank: 42, title: '가을 우체국 앞에서', artist: '윤도현', vid: 'k2P1w8Z0y9I', keywords: ['가을우체국앞에서', '윤도현', 'yb'] },
-  { rank: 43, title: '사랑 Two', artist: '윤도현', vid: 'x0P2w8Y1z3I', keywords: ['사랑two', '사랑투', '윤도현'] },
-  { rank: 44, title: '인연', artist: '이선희', vid: 'b1P2w8Z0y9I', keywords: ['인연', '이선희', '왕의남자'] },
-  { rank: 45, title: '아름다운 강산', artist: '이선희', vid: 'm0P2w8Z1y9I', keywords: ['아름다운강산', '이선희', '신중현'] },
-  { rank: 46, title: '끝사랑', artist: '김범수', vid: 's2P0w8Z1y9I', keywords: ['끝사랑', '김범수'] },
-  { rank: 47, title: '보고 싶다', artist: '김범수', vid: 'y0P1w8Z2y9I', keywords: ['보고싶다', '김범수', '천국의계단'] },
-  { rank: 48, title: '광화문에서', artist: '규현', vid: 'd2P1w8Z0y9I', keywords: ['광화문에서', '규현'] },
-  { rank: 49, title: '너를 만나', artist: '폴킴', vid: 'k0P1w8Z2y9I', keywords: ['너를만나', '폴킴'] },
-  { rank: 50, title: 'Plastic Love', artist: 'Mariya Takeuchi', vid: '9Gj47G2e1Jc', keywords: ['plasticlove', '플라스틱러브', '시티팝', 'citypop'] }
+  { rank: 10, title: '예뻤어', artist: 'DAY6 (데이식스)', vid: 'BS7tz2rAQUI', keywords: ['예뻤어', '데이식스', 'day6', 'ㅇㅃㅇ'] },
+  { rank: 11, title: '비의 랩소디', artist: '임재현', vid: 'K9eE3d1i9m8', keywords: ['비의랩소디', '임재현', 'ㅂㅇㄹㅅㄷ'] },
+  { rank: 12, title: '헤어지자 말해요', artist: '박재정', vid: 'D9E1eZfM8y8', keywords: ['헤어지자말해요', '박재정', 'ㅎㅇㅈㅈㅁㅎㅇ'] },
+  { rank: 13, title: 'Supernova', artist: 'aespa (에스파)', vid: 'phuiAIQAxZ4', keywords: ['슈퍼노바', 'supernova', '에스파', 'aespa', 'ㅅㅍㄴㅂ'] },
+  { rank: 14, title: 'Hype Boy', artist: 'NewJeans (뉴진스)', vid: '11cta61Wi0g', keywords: ['하입보이', 'hypeboy', '뉴진스', 'newjeans', 'ㅎㅇㅂㅇ'] },
+  { rank: 15, title: 'Ditto', artist: 'NewJeans (뉴진스)', vid: 'pSUydWEq46E', keywords: ['디토', 'ditto', '뉴진스', 'newjeans', 'ㄷㅌ'] },
+  { rank: 16, title: '서른 즈음에', artist: '김광석', vid: '4dHsW45mrfk', keywords: ['서른즈음에', '김광석', 'ㅅㄹㅈㅇㅁ'] },
+  { rank: 17, title: '그대에게', artist: '신해철 (무한궤도)', vid: 'R9V4G0S7s-Q', keywords: ['그대에게', '신해철', '무한궤도', 'ㄱㄷㅇㄱ'] },
+  { rank: 18, title: '가시', artist: '버즈 (Buzz)', vid: 'tOAn1IMGmK4', keywords: ['가시', '버즈', 'buzz', '민경훈', 'ㄱㅅ'] },
+  { rank: 19, title: '좋니', artist: '윤종신', vid: 's1qYp3b_Q1Y', keywords: ['좋니', '윤종신', 'ㅈㄴ'] },
+  { rank: 20, title: '응급실', artist: 'izi', vid: '1M4mYf_86nQ', keywords: ['응급실', 'izi', '이지', '쾌걸춘향', 'ㅇㄱㅅ'] },
+  { rank: 21, title: '소주 한 잔', artist: '임창정', vid: 'y5cZJpPqY_w', keywords: ['소주한잔', '임창정', 'ㅅㅈㅎㅈ'] },
+  { rank: 22, title: '야생화', artist: '박효신', vid: '_hsr0ST6Mrc', keywords: ['야생화', '박효신', 'ㅇㅅㅎ'] },
+  { rank: 23, title: '너의 모든 순간', artist: '성시경', vid: 'sV9Q6v8o5a8', keywords: ['너의모든순간', '성시경', 'ㄴㅇㅁㄷㅅㄱ'] },
+  { rank: 24, title: 'I AM', artist: 'IVE (아이브)', vid: '6ZUIwj3FlWY', keywords: ['아이엠', 'iam', '아이브', 'ive', 'ㅇㅇㅇ'] },
+  { rank: 25, title: '신호등', artist: '이무진', vid: 'SK6Sm2Ki9tI', keywords: ['신호등', '이무진', 'ㅅㅎㄷ'] },
+  { rank: 26, title: '취중고백', artist: '김민석 (멜로망스)', vid: 'aY7B0T_U1lU', keywords: ['취중고백', '김민석', '멜로망스', 'ㅊㅈㄱㅂ'] },
+  { rank: 27, title: 'Love Lee', artist: 'AKMU (악뮤)', vid: 'EIz0GnyRRck', keywords: ['러브리', 'lovelee', '악뮤', 'akmu', 'ㄹㅂㄹ'] },
+  { rank: 28, title: '어떻게 이별까지 사랑하겠어', artist: 'AKMU (악뮤)', vid: 'm3DZsBw5bnE', keywords: ['어떻게이별까지사랑하겠어', '악뮤', 'akmu', 'ㅇㄸㄱㅇㅂㄲㅈㅅㄹㅎㄱㅇ'] },
+  { rank: 29, title: '모든 날, 모든 순간', artist: '폴킴', vid: 'o_WfP6j8t2o', keywords: ['모든날모든순간', '폴킴', 'ㅁㄷㄴㅁㄷㅅㄱ'] },
+  { rank: 30, title: '사랑앓이', artist: 'FT아일랜드', vid: 'uOa7e4h2Tks', keywords: ['사랑앓이', 'ft아일랜드', '이홍기', 'ㅅㄹㅇㅇ'] },
+  { rank: 31, title: 'Plastic Love', artist: 'Mariya Takeuchi', vid: '9Gj47G2e1Jc', keywords: ['plasticlove', '플라스틱러브', '시티팝', 'citypop', 'ㅍㄹㅅㅌㄹㅂ'] }
 ];
+
+// 초성 추출 함수
+export function getKoreanChosung(str) {
+  if (!str) return '';
+  const CHO = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+  let res = '';
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i) - 44032;
+    if (code >= 0 && code <= 11171) {
+      res += CHO[Math.floor(code / 588)];
+    } else {
+      res += str[i];
+    }
+  }
+  return res;
+}
 
 // ==================== HTML 이스케이프 유틸 ====================
 function escapeHTML(str) {
@@ -416,11 +413,26 @@ function escapeHTML(str) {
 }
 
 // 전역 노래방 영상 & 오디오 상태
-let currentKaraokeVideoId = 'QdzAMLBk-YE'; // 신해철 그대에게 TJ 공식
+let currentKaraokeVideoId = 'R9V4G0S7s-Q'; // 신해철 그대에게 원곡 MR
 let currentKaraokeTitle = '그대에게';
 let currentKaraokeArtist = '신해철 (무한궤도)';
 let isVideoFloating = false;
-// ==================== 순수 인앱 유튜브 노래방 플레이어 (CORS 간섭 완전 배제) ====================
+
+// 유튜브 IFrame 명령어 전송 헬퍼 (재생, 일시정지, 정지 등 인앱 동기화)
+export function sendYouTubeCommand(funcName, args = '') {
+  const frame = document.getElementById('karaoke-embed-frame');
+  if (frame && frame.contentWindow) {
+    try {
+      frame.contentWindow.postMessage(JSON.stringify({
+        event: 'command',
+        func: funcName,
+        args: args
+      }), '*');
+    } catch (e) {}
+  }
+}
+
+// ==================== 순수 인앱 유튜브 노래방 플레이어 (모바일 인라인 웹 재생 강제) ====================
 export function loadKaraokeVideo(videoId, title = '', artist = '') {
   currentKaraokeVideoId = videoId;
   if (title) currentKaraokeTitle = title;
@@ -435,9 +447,14 @@ export function loadKaraokeVideo(videoId, title = '', artist = '') {
   if (lyricsMonitor) lyricsMonitor.style.display = 'none';
   if (placeholder) placeholder.style.display = 'none';
 
-  const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&playsinline=1`;
+  // 모바일 브라우저 표준 유튜브 인앱 임베드 (playsinline 및 올바른 origin 강제)
+  const origin = window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'https://dg1682-commits.github.io';
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1&rel=0&iv_load_policy=3&modestbranding=1&origin=${encodeURIComponent(origin)}`;
 
   if (karaokeFrame) {
+    karaokeFrame.setAttribute('playsinline', '1');
+    karaokeFrame.setAttribute('webkit-playsinline', '1');
+    karaokeFrame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
     karaokeFrame.style.display = 'block';
     karaokeFrame.src = embedUrl;
   }
@@ -828,13 +845,19 @@ export async function executeKaraokeSearch(raw) {
   const candidates = [];
   const seenIds = new Set();
 
-  // 2. 내장 50+ 애창곡/인기차트 DB 매칭 검사
+  // 2. 내장 인기차트 & 노래방 DB 매칭 검사 (초성 및 키워드 검색 지원)
   const normQuery = query.toLowerCase().replace(/[\s\-_]/g, '');
+  const queryChosung = getKoreanChosung(normQuery);
+
   const localMatches = CURATED_KARAOKE_DB.filter(song => {
     const normTitle = song.title.toLowerCase().replace(/[\s\-_]/g, '');
     const normArtist = song.artist.toLowerCase().replace(/[\s\-_]/g, '');
+    const titleChosung = getKoreanChosung(normTitle);
+    const artistChosung = getKoreanChosung(normArtist);
+
     return normTitle.includes(normQuery) || normQuery.includes(normTitle) ||
            normArtist.includes(normQuery) ||
+           (queryChosung && (titleChosung.includes(queryChosung) || artistChosung.includes(queryChosung))) ||
            (song.keywords && song.keywords.some(k => normQuery.includes(k.toLowerCase().replace(/[\s\-_]/g, ''))));
   });
 
@@ -845,8 +868,8 @@ export async function executeKaraokeSearch(raw) {
         videoId: m.vid,
         title: `${m.title} - ${m.artist}`,
         artist: m.artist,
-        channel: 'TJ/금영 공인 반주 (추천)',
-        badge: idx === 0 ? 'TJ 노래방' : '금영 노래방'
+        channel: '고음질 MR 반주 (가사 지원 - 인앱 재생)',
+        badge: 'MR 가사 반주'
       });
     }
   });
@@ -1260,6 +1283,9 @@ function setupStudioControls() {
 
         startRecTimer();
 
+        // 유튜브 영상 인라인 자동 시작 동기화
+        sendYouTubeCommand('playVideo');
+
         // 일시정지 버튼 초기화
         if (livePauseBtn) livePauseBtn.classList.remove('is-paused');
         if (livePauseIcon) livePauseIcon.textContent = '❚❚';
@@ -1285,6 +1311,7 @@ function setupStudioControls() {
       if (!isRecPaused) {
         // 일시정지 상태로 변경
         audioEngine.pauseRecording();
+        sendYouTubeCommand('pauseVideo');
         isRecPaused = true;
         livePauseBtn.classList.add('is-paused');
         if (livePauseIcon) livePauseIcon.textContent = '▶';
@@ -1292,6 +1319,7 @@ function setupStudioControls() {
       } else {
         // 녹음 재개
         audioEngine.resumeRecording();
+        sendYouTubeCommand('playVideo');
         isRecPaused = false;
         livePauseBtn.classList.remove('is-paused');
         if (livePauseIcon) livePauseIcon.textContent = '❚❚';
@@ -1311,6 +1339,7 @@ function setupStudioControls() {
         cancelText: '계속 노래하기',
         onConfirm: () => {
           stopRecTimer();
+          sendYouTubeCommand('pauseVideo');
           audioEngine.cancelRecording();
           state.isRecording = false;
           if (studioView) studioView.classList.remove('studio-recording-mode');
@@ -1324,6 +1353,7 @@ function setupStudioControls() {
     liveFinishBtn.onclick = async () => {
       audioEngine.playMechanicalClick();
       stopRecTimer();
+      sendYouTubeCommand('pauseVideo');
       const blob = await audioEngine.stopRecording();
       state.isRecording = false;
       if (studioView) studioView.classList.remove('studio-recording-mode');
