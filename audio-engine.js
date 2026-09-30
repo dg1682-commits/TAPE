@@ -404,15 +404,11 @@ class AudioEngine {
       throw new Error('마이크 접근 권한이 필요합니다.');
     }
 
-    // 마이크 스트림을 레코더에 연결
-    // 오디오 컨텍스트의 destination 노드를 스트림으로 캡처하거나, 마이크 마스터 노드를 수음
+    // 마이크 노드만 레코더에 연결 (스피커 반주 + 목소리 자연 수음)
     this.recordDestination = this.ctx.createMediaStreamDestination();
 
     if (this.micMasterNode) {
       this.micMasterNode.connect(this.recordDestination);
-    }
-    if (this.playerGainNode) {
-      this.playerGainNode.connect(this.recordDestination);
     }
 
     const streamToRecord = this.recordDestination.stream;

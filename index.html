@@ -155,13 +155,6 @@
               <button id="studio-voice-btn" class="studio-btn-search studio-btn-voice" title="음성 검색 (운전 중 말로 검색)">
                 <span>🎙️</span> 음성
               </button>
-              <input type="file" id="studio-local-file-input" accept="audio/*" style="display: none;" />
-              <button id="studio-btn-local-mr" class="studio-btn-search" title="내 스마트폰 MP3/MR 반주 파일 열기 (피치 조절 100% 지원)">
-                <span>📁</span> MP3
-              </button>
-              <button id="studio-btn-demo-mr" class="studio-btn-search" style="background: #0284c7; border-color: #38bdf8; color: #fff; font-weight: bold;" title="피치 조절 즉시 테스트용 내장 반주">
-                <span>🎹</span> 피치 테스트
-              </button>
             </div>
 
             <!-- 인기 애창곡 퀵 선택 칩 (검증된 실제 노래방 영상들) -->
@@ -220,16 +213,13 @@
               </div>
             </div>
 
-            <!-- 하단 서브 툴바 (인앱 창 띄우기 & 피치 테스트) -->
+            <!-- 하단 서브 툴바 (인앱 창 띄우기) -->
             <div class="karaoke-sub-toolbar">
               <button id="studio-btn-toggle-float" class="studio-sub-btn highlight" style="display: none;" title="어플 안에서 자유롭게 떠다니는 인앱 창으로 분리">
                 <span>🪟</span> 인앱 창 띄우기
               </button>
               <button id="studio-btn-reopen-picker" class="studio-sub-btn" style="display: none;">
                 <span>🔄</span> 다른 노래/버전 선택
-              </button>
-              <button id="studio-btn-test-pitch" class="studio-sub-btn" title="피치 조절(-6~+6) 즉시 테스트">
-                <span>🎹</span> 피치 테스트 반주
               </button>
             </div>
           </div>
@@ -250,27 +240,11 @@
             </div>
           </div>
 
-          <!-- 우측: 컨트롤 데크 (평상시 세팅 ➔ 녹음 중에는 3번/7번 전용 컨트롤로 변신) -->
+          <!-- 우측: 컨트롤 데크 (평상시 세팅 ➔ 녹음 중에는 전용 컨트롤로 변신) -->
           <div class="studio-ctrl-section" id="studio-ctrl-box">
 
             <!-- A. 평상시 프리-세팅 패널 -->
-            <div id="studio-idle-panel" style="display: flex; flex-direction: column; height: 100%; gap: 6px;">
-              <!-- 키 피치 조절 -->
-              <div class="control-deck-group">
-                <div class="group-title">
-                  <span>KEY PITCH SHIFT</span>
-                  <span style="font-size: 9px; color: #64748b;">WEB AUDIO</span>
-                </div>
-                <div class="pitch-control-row">
-                  <button class="pitch-btn" id="pitch-btn-down">♭</button>
-                  <div class="pitch-display">
-                    <span class="pitch-semitone" id="studio-pitch-val">0</span>
-                    <span class="pitch-label">KEY</span>
-                  </div>
-                  <button class="pitch-btn" id="pitch-btn-up">♯</button>
-                </div>
-              </div>
-
+            <div id="studio-idle-panel" style="display: flex; flex-direction: column; height: 100%; gap: 8px;">
               <!-- 마이크 & 에코 -->
               <div class="control-deck-group">
                 <div class="group-title">MIC & KARAOKE ECHO</div>
@@ -280,6 +254,9 @@
                 </div>
                 <div class="slider-row">
                   <label>ECHO</label>
+                  <input type="range" id="studio-slider-echo" class="studio-range" min="0" max="1" step="0.05" value="0.3" />
+                </div>
+              </div>
                   <input type="range" id="studio-slider-echo" class="studio-range" min="0" max="1" step="0.05" value="0.3" />
                 </div>
               </div>
@@ -322,18 +299,6 @@
                   <span>✓</span>
                   <span>노래 완료 (저장)</span>
                 </button>
-              </div>
-
-              <!-- 실시간 미니 키 조절 -->
-              <div class="control-deck-group" style="padding: 4px 8px; margin-top: auto;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <span style="font-size: 9px; color: #8892b0;">KEY PITCH</span>
-                  <div style="display: flex; gap: 6px; align-items: center;">
-                    <button class="pitch-btn" style="width: 22px; height: 22px; font-size: 11px;" id="pitch-live-down">♭</button>
-                    <span id="pitch-live-val" style="font-family: var(--font-display); font-size: 13px; color: var(--vfd-cyan); min-width: 18px; text-align: center;">0</span>
-                    <button class="pitch-btn" style="width: 22px; height: 22px; font-size: 11px;" id="pitch-live-up">♯</button>
-                  </div>
-                </div>
               </div>
             </div>
 
