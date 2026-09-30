@@ -338,15 +338,6 @@ function setupStudioControls() {
   const karaokeFrame = document.getElementById('karaoke-embed-frame');
   const placeholder = document.getElementById('karaoke-placeholder');
 
-  // 검색 시 "+ 노래방" 자동 결합
-  const doSearch = () => {
-    const query = searchInput.value.trim();
-    if (!query) {
-      showRetroModal({
-        title: '⚠️ SEARCH NOTICE',
-        contentHTML: '가수명 또는 노래 제목을 입력해주세요.',
-        confirmText: '확인'
-      });
   // ==================== 유튜브 노래방 영상 로더 ====================
   let currentKaraokeVideoId = 'W3q8Od5qJio'; // 기본 신해철 그대에게
   let currentKaraokeTitle = '그대에게';
