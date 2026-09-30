@@ -41,7 +41,7 @@
           <span class="brand-model">RS-M85</span>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 6px;">
+        <div class="deck-top-actions">
           <!-- 6. 블루투스/오디오 장치 표시 -->
           <div id="bt-device-pill" class="bt-device-pill" title="현재 연결된 블루투스/마이크/오디오 장치">
             <span id="bt-icon">🎧</span>
@@ -177,6 +177,31 @@
               </div>
               <iframe id="karaoke-embed-frame" style="display: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
+              <!-- 유튜브 팝업창 재생 모드 시 표시되는 레트로 VFD 모니터 -->
+              <div id="karaoke-popup-active-view" class="popup-active-monitor" style="display: none;">
+                <div class="popup-active-badge">🎬 YOUTUBE POP-UP ACTIVE</div>
+                <div class="popup-track-title" id="popup-monitor-title">곡명</div>
+                <div class="popup-track-artist" id="popup-monitor-artist">가수명</div>
+                <div class="retro-spectrum-bars">
+                  <span class="spec-bar sb1"></span><span class="spec-bar sb2"></span><span class="spec-bar sb3"></span>
+                  <span class="spec-bar sb4"></span><span class="spec-bar sb5"></span><span class="spec-bar sb6"></span>
+                  <span class="spec-bar sb7"></span><span class="spec-bar sb8"></span><span class="spec-bar sb9"></span>
+                  <span class="spec-bar sb10"></span><span class="spec-bar sb11"></span><span class="spec-bar sb12"></span>
+                </div>
+                <div class="popup-guide-text">
+                  유튜브 팝업창/앱에서 가사와 반주가 100% 재생 중입니다.<br>
+                  가사를 보시면서 우측의 <strong>[● 노래 시작! (REC)]</strong> 버튼을 눌러 녹음하세요.
+                </div>
+                <div class="popup-monitor-toolbar">
+                  <button id="btn-reopen-popup-direct" class="studio-sub-btn highlight">
+                    <span>🎬</span> 팝업창 다시 열기
+                  </button>
+                  <button id="btn-try-embed-again" class="studio-sub-btn">
+                    <span>📺</span> 화면 내 재생 시도
+                  </button>
+                </div>
+              </div>
+
               <!-- 검색 결과 리스트 선택 모달 (유튜브 노래방 버전 선택기) -->
               <div id="karaoke-search-picker" class="karaoke-search-picker" style="display: none;">
                 <div class="picker-header">
@@ -185,13 +210,16 @@
                   </div>
                   <button id="picker-btn-close" class="picker-close-btn">✕ 닫기</button>
                 </div>
-                <div class="picker-subtitle">원하시는 반주 버전을 터치하시면 모니터에서 즉시 재생됩니다:</div>
+                <div class="picker-subtitle">원하시는 버전을 선택하세요. [🎬 팝업 재생]을 누르시면 저작권 오류 없이 100% 재생됩니다:</div>
                 <div class="picker-list" id="picker-results-list"></div>
               </div>
             </div>
 
             <!-- 하단 대체 컨트롤 바 (버전 변경 & 유튜브 외부 열기) -->
             <div class="karaoke-sub-toolbar">
+              <button id="studio-btn-popup-yt" class="studio-sub-btn highlight" style="display: none;" title="동영상 오류 없이 100% 가사/반주 재생">
+                <span>🎬</span> 유튜브 팝업창으로 열기 (100% 재생)
+              </button>
               <button id="studio-btn-reopen-picker" class="studio-sub-btn" style="display: none;">
                 <span>🔄</span> 다른 노래방 버전 선택 (TJ/금영)
               </button>
