@@ -276,18 +276,9 @@ html, body {
   background: #991b1b;
   color: #fff;
 }
-  border: 1px solid #232a38;
-}
-.firebase-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--vfd-cyan);
-  box-shadow: 0 0 5px var(--vfd-cyan);
-}
 
 /* ==========================================================================
-   WORKSPACE (메인 작업 영역)
+   WORKSPACE (메인 작업 영역: 100% 가로 꽉 채움)
    ========================================================================== */
 .deck-workspace {
   flex: 1;
@@ -295,13 +286,15 @@ html, body {
   overflow: hidden;
   z-index: 2;
   display: flex;
-  padding: 10px 14px;
+  padding: 8px 12px;
   gap: 12px;
 }
 
 .deck-view {
   width: 100%;
   height: 100%;
+  flex: 1;
+  min-width: 0;
   display: none;
   opacity: 0;
   transform: translateY(4px);
@@ -315,26 +308,33 @@ html, body {
 }
 
 /* ==========================================================================
-   VIEW 1: DASHBOARD
+   VIEW 1: DASHBOARD (완벽한 3분할 1:1:1 레이아웃 - 오른쪽 공간 100% 채움)
    ========================================================================== */
 .dashboard-view {
-  gap: 14px;
-  align-items: center;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 12px;
+  align-items: stretch;
 }
 
-.dash-left-stage {
-  flex: 1.1;
+.dash-col {
+  flex: 1;
   height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-col-stage {
   background: var(--tape-door-well);
   border-radius: 6px;
   border: 1px solid #20242e;
   box-shadow: inset 0 6px 20px #000;
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 10px;
+  padding: 8px;
   overflow: hidden;
 }
 
@@ -346,14 +346,15 @@ html, body {
   font-weight: 700;
   color: var(--vfd-amber);
   letter-spacing: 1px;
+  z-index: 3;
 }
 
-.dash-right-info {
-  flex: 0.9;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+.dash-col-monitor {
   gap: 8px;
+}
+
+.dash-col-chart {
+  /* 컬럼 3: K-POP 인기차트 */
 }
 
 /* VFD Information Panel (슬릭/모던 LCD) */
@@ -853,6 +854,185 @@ html, body {
   font-size: 28px;
   margin-bottom: 4px;
   color: #dc2626;
+}
+
+/* ==========================================================================
+   KARAOKE SEARCH RESULTS PICKER (검색 결과 선택 모달/드로어)
+   ========================================================================== */
+.karaoke-search-picker {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 12, 17, 0.95);
+  backdrop-filter: blur(4px);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  gap: 6px;
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #232838;
+  padding-bottom: 6px;
+}
+
+.picker-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--vfd-cyan);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.picker-close-btn {
+  height: 22px;
+  padding: 0 8px;
+  background: #232838;
+  border: 1px solid #374151;
+  border-radius: 3px;
+  color: #e2e8f0;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.picker-subtitle {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.picker-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #141724;
+  border: 1px solid #22293d;
+  border-radius: 4px;
+  gap: 8px;
+}
+
+.picker-item:hover, .picker-item:active {
+  background: #1a2033;
+  border-color: var(--vfd-cyan);
+}
+
+.picker-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.picker-item-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.picker-item-channel {
+  font-size: 9px;
+  color: var(--vfd-amber);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.picker-tag-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 8.5px;
+  font-weight: 700;
+  background: rgba(0, 240, 192, 0.15);
+  color: var(--vfd-cyan);
+  border: 1px solid rgba(0, 240, 192, 0.3);
+}
+
+.picker-tag-badge.badge-tj {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.picker-tag-badge.badge-ky {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.picker-tag-badge.badge-mr {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.picker-item.is-current-playing {
+  background: #172236;
+  border-color: var(--vfd-cyan);
+}
+
+.picker-select-btn {
+  height: 26px;
+  padding: 0 10px;
+  background: #0284c7;
+  border: 1px solid #38bdf8;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.picker-select-btn:active {
+  transform: scale(0.95);
+}
+
+/* 하단 서브 툴바 (버전 변경 및 유튜브 열기) */
+.karaoke-sub-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.studio-sub-btn {
+  height: 24px;
+  padding: 0 8px;
+  background: #141824;
+  border: 1px solid #273148;
+  border-radius: 3px;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.studio-sub-btn:hover {
+  color: var(--vfd-cyan);
+  border-color: var(--vfd-cyan);
 }
 
 .studio-ctrl-section {
@@ -1854,6 +2034,69 @@ html, body {
 .modal-action-btn.btn-confirm {
   background: #0284c7;
   border-color: #0369a1;
+}
+
+/* ==========================================================================
+   POWER-OFF SHUTDOWN SCREEN (완전 전원 셧다운 화면)
+   ========================================================================== */
+.power-off-screen {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.power-off-card {
+  text-align: center;
+  padding: 24px;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.power-off-logo {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #475569;
+}
+
+.power-off-status {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ff3b4b;
+  letter-spacing: 1px;
+}
+
+.power-off-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.btn-power-off-action {
+  height: 36px;
+  padding: 0 16px;
+  background: #1e2432;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-power-off-action:active {
+  background: #0f121a;
+  transform: scale(0.96);
 }
 
 /* ==========================================================================

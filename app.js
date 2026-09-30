@@ -166,24 +166,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
-  // 5. 앱 종료 버튼
+  // 5. 앱 완전 종료 (셧다운) 버튼
   const exitBtn = document.getElementById('btn-app-exit');
   if (exitBtn) {
     exitBtn.onclick = () => {
       audioEngine.playMechanicalClick();
       showRetroModal({
         title: '⏻ APP SHUTDOWN',
-        contentHTML: '카세트 데크 어플을 종료하시겠습니까?',
+        contentHTML: '카세트 데크 어플의 모든 오디오 및 반주 기능을 셧다운하시겠습니까?',
         confirmText: '앱 종료',
         cancelText: '취소',
         onConfirm: () => {
-          audioEngine.shutdownMicrophone();
-          window.close();
-          setTimeout(() => {
-            window.location.href = 'about:blank';
-          }, 300);
+          shutdownAppCompletely();
         }
       });
+    };
+  }
+
+  // 5-1. 전원 오프 화면 버튼들 바인딩
+  const forceExitBtn = document.getElementById('btn-force-power-off-exit');
+  if (forceExitBtn) {
+    forceExitBtn.onclick = () => {
+      try { window.close(); } catch(e) {}
+      try { history.back(); } catch(e) {}
+    };
+  }
+
+  const rebootBtn = document.getElementById('btn-power-off-reboot');
+  if (rebootBtn) {
+    rebootBtn.onclick = () => {
+      window.location.reload();
     };
   }
 
@@ -386,6 +398,17 @@ export const CURATED_KARAOKE_DB = [
   { rank: 50, title: 'Plastic Love', artist: 'Mariya Takeuchi', vid: '3bNITQR4Uso', keywords: ['plasticlove', '플라스틱러브', '시티팝', 'citypop'] }
 ];
 
+// ==================== HTML 이스케이프 유틸 ====================
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // 전역 노래방 영상 로더 함수
 let currentKaraokeVideoId = 'W3q8Od5qJio';
 let currentKaraokeTitle = '그대에게';
@@ -402,52 +425,138 @@ export function loadKaraokeVideo(videoId, title = '', artist = '') {
   if (karaokeFrame && placeholder) {
     placeholder.style.display = 'none';
     karaokeFrame.style.display = 'block';
-    // autoplay=1, playsinline=1, enablejsapi=1, rel=0
-    karaokeFrame.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&playsinline=1`;
+    // YouTube 공식 embed URL 사용 (nocookie 제거하여 음악 저작권 차단 방지)
+    karaokeFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&playsinline=1`;
   }
+
+  // 하단 버전 재선택 및 유튜브 외부 열기 버튼 표시
+  const reopenBtn = document.getElementById('studio-btn-reopen-picker');
+  const extYtBtn = document.getElementById('studio-btn-external-yt');
+  if (reopenBtn) reopenBtn.style.display = 'flex';
+  if (extYtBtn) extYtBtn.style.display = 'flex';
 }
 
-// 다중 노래방 버전 칩 렌더러
-function renderVersionChips(versions) {
-  const bar = document.getElementById('karaoke-search-results-bar');
-  if (!bar) return;
-  if (!versions || versions.length <= 1) {
-    bar.style.display = 'none';
-    bar.innerHTML = '';
+// 노래방 버전 선택 모달 열기 & 리스트 렌더링
+export function showKaraokePicker(query, candidates = []) {
+  const picker = document.getElementById('karaoke-search-picker');
+  const queryText = document.getElementById('picker-query-text');
+  const listEl = document.getElementById('picker-results-list');
+  if (!picker || !listEl) return;
+
+  if (queryText) {
+    queryText.textContent = `"${query}" 노래방 반주 선택`;
+  }
+
+  picker.style.display = 'flex';
+  listEl.innerHTML = '';
+
+  if (candidates.length === 0) {
+    listEl.innerHTML = `
+      <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 11px;">
+        <div style="font-size: 22px; margin-bottom: 6px;">⚠️</div>
+        <div style="font-weight: bold; color: #f87171;">"${escapeHTML(query)}" 관련 반주를 자동으로 찾지 못했습니다.</div>
+        <div style="margin-top: 6px; font-size: 10px; color: #718096; line-height: 1.5;">
+          곡명이나 가수명을 더 간단하게 검색해보시거나, 아래 버튼을 눌러 유튜브 앱/웹에서 바로 찾아보세요.
+        </div>
+        <button id="picker-fallback-yt" class="picker-select-btn" style="margin: 12px auto 0; display: inline-flex; height: 30px; padding: 0 14px;">
+          <span>🌐</span> 유튜브에서 "${escapeHTML(query)} 노래방" 검색 열기
+        </button>
+      </div>
+    `;
+    const fallbackYt = document.getElementById('picker-fallback-yt');
+    if (fallbackYt) {
+      fallbackYt.onclick = () => {
+        window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' 노래방')}`, '_blank');
+      };
+    }
     return;
   }
-  bar.style.display = 'flex';
-  bar.innerHTML = '<span style="font-size: 9px; color: #64748b; margin-right: 4px;">버전:</span>';
-  versions.forEach((v, idx) => {
-    const chip = document.createElement('button');
-    chip.className = `karaoke-version-chip ${idx === 0 ? 'is-active' : ''}`;
-    chip.textContent = v.title || `버전 ${idx + 1}`;
-    chip.onclick = () => {
+
+  candidates.forEach(item => {
+    const row = document.createElement('div');
+    const isPlaying = item.videoId === currentKaraokeVideoId;
+    row.className = `picker-item ${isPlaying ? 'is-current-playing' : ''}`;
+
+    let badgeClass = '';
+    if (item.badge === 'TJ 노래방') badgeClass = 'badge-tj';
+    else if (item.badge === '금영 노래방') badgeClass = 'badge-ky';
+    else if (item.badge === 'MR 가사 반주') badgeClass = 'badge-mr';
+
+    row.innerHTML = `
+      <div class="picker-item-info">
+        <div class="picker-item-title">${escapeHTML(item.title)}</div>
+        <div class="picker-item-channel">
+          <span class="picker-tag-badge ${badgeClass}">${escapeHTML(item.badge || '반주')}</span>
+          <span>${escapeHTML(item.channel || '노래방')}</span>
+        </div>
+      </div>
+      <button class="picker-select-btn">
+        <span>${isPlaying ? '▶ 재생 중' : '▶ 선택 및 재생'}</span>
+      </button>
+    `;
+
+    const onSelect = () => {
       audioEngine.playMechanicalClick();
-      bar.querySelectorAll('.karaoke-version-chip').forEach(c => c.classList.remove('is-active'));
-      chip.classList.add('is-active');
-      loadKaraokeVideo(v.videoId);
+      hideKaraokePicker();
+      loadKaraokeVideo(item.videoId, item.title, item.artist || query);
+      const searchInput = document.getElementById('studio-search-input');
+      if (searchInput && item.artist) {
+        searchInput.value = `${item.artist} - ${item.title.replace(/\[.*?\]|\(.*?\)/g, '').trim()}`;
+      }
     };
-    bar.appendChild(chip);
+
+    row.onclick = onSelect;
+    row.querySelector('.picker-select-btn').onclick = (e) => {
+      e.stopPropagation();
+      onSelect();
+    };
+
+    listEl.appendChild(row);
   });
+
+  // 하단 유튜브 추가 검색 안내
+  const ytExtRow = document.createElement('div');
+  ytExtRow.style.cssText = 'padding: 8px 4px 4px; display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #232838; margin-top: 6px;';
+  ytExtRow.innerHTML = `
+    <span style="font-size: 10px; color: #64748b;">원하는 반주가 없으신가요?</span>
+    <button class="studio-sub-btn" style="height: 24px; color: #38bdf8;">
+      <span>🌐</span> 유튜브에서 더 찾아보기
+    </button>
+  `;
+  ytExtRow.querySelector('button').onclick = () => {
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(query + ' 노래방')}`, '_blank');
+  };
+  listEl.appendChild(ytExtRow);
 }
 
-// 실시간 온라인 노래방 검색 프록시
+// 노래방 버전 선택 모달 닫기
+export function hideKaraokePicker() {
+  const picker = document.getElementById('karaoke-search-picker');
+  if (picker) {
+    picker.style.display = 'none';
+  }
+}
+
+// 실시간 온라인 노래방 검색 (Invidious API & CORS 프록시)
 async function fetchOnlineKaraokeVideo(raw) {
   const clean = raw.trim();
   const query = `${clean} 노래방`;
+  const results = [];
+  const seenIds = new Set();
 
-  // 1. Invidious 공개 API 시도 (가장 빠른 응답)
+  // 1. Invidious 공개 API 인스턴스들
   const invidiousInstances = [
-    'https://invidious.nerdvpn.de',
     'https://inv.nadeko.net',
+    'https://invidious.private.coffee',
+    'https://invidious.protokolla.fi',
+    'https://iv.melmac.space',
     'https://invidious.drgns.space'
   ];
 
   for (const base of invidiousInstances) {
     try {
       const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), 2000);
+      const tid = setTimeout(() => ctrl.abort(), 2200);
       const res = await fetch(`${base}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
         signal: ctrl.signal
       });
@@ -455,41 +564,100 @@ async function fetchOnlineKaraokeVideo(raw) {
       if (res.ok) {
         const items = await res.json();
         if (Array.isArray(items) && items.length > 0) {
-          return items.slice(0, 4).map(item => ({
-            videoId: item.videoId,
-            title: item.title
-          }));
+          for (const item of items) {
+            if (item.videoId && !seenIds.has(item.videoId)) {
+              seenIds.add(item.videoId);
+              const title = item.title || clean;
+              let badge = '노래방 반주';
+              if (/tj|티제이/i.test(title)) badge = 'TJ 노래방';
+              else if (/ky|금영/i.test(title)) badge = '금영 노래방';
+              else if (/mr|엠알|inst/i.test(title)) badge = 'MR 가사 반주';
+
+              results.push({
+                videoId: item.videoId,
+                title: title,
+                channel: item.author || '노래방',
+                badge: badge
+              });
+              if (results.length >= 6) break;
+            }
+          }
+          if (results.length > 0) return results;
         }
       }
     } catch (e) {}
   }
 
-  // 2. AllOrigins CORS 프록시로 YouTube 검색 결과 실시간 파싱
-  try {
-    const ytUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(ytUrl)}`;
-    const ctrl = new AbortController();
-    const tid = setTimeout(() => ctrl.abort(), 3000);
-    const res = await fetch(proxyUrl, { signal: ctrl.signal });
-    clearTimeout(tid);
-    if (res.ok) {
-      const data = await res.json();
-      const html = data.contents || '';
-      const matches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
-      if (matches.length > 0) {
-        const uniqueIds = [...new Set(matches.map(m => m[1]))].slice(0, 3);
-        return uniqueIds.map((id, idx) => ({
-          videoId: id,
-          title: idx === 0 ? `${clean} (추천)` : `버전 ${idx + 1}`
-        }));
-      }
-    }
-  } catch (e) {}
+  // 2. AllOrigins / CORS 프록시로 YouTube 검색 결과 파싱
+  const proxies = [
+    (q) => `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`)}`,
+    (q) => `https://corsproxy.io/?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`)}`
+  ];
 
-  return null;
+  for (const proxyGen of proxies) {
+    try {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 2800);
+      const res = await fetch(proxyGen(query), { signal: ctrl.signal });
+      clearTimeout(tid);
+      if (res.ok) {
+        let html = '';
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const json = await res.json();
+          html = json.contents || '';
+        } else {
+          html = await res.text();
+        }
+
+        const videoMatches = [...html.matchAll(/"videoRenderer":\{"videoId":"([a-zA-Z0-9_-]{11})".*?"title":\{"runs":\[\{"text":"([^"]+)"\}/g)];
+        if (videoMatches.length > 0) {
+          for (const m of videoMatches) {
+            const vid = m[1];
+            const title = m[2];
+            if (!seenIds.has(vid)) {
+              seenIds.add(vid);
+              let badge = '노래방 반주';
+              if (/tj|티제이/i.test(title)) badge = 'TJ 노래방';
+              else if (/ky|금영/i.test(title)) badge = '금영 노래방';
+              else if (/mr|엠알|inst/i.test(title)) badge = 'MR 가사 반주';
+
+              results.push({
+                videoId: vid,
+                title: title,
+                channel: 'YouTube',
+                badge: badge
+              });
+              if (results.length >= 6) break;
+            }
+          }
+        } else {
+          const simpleMatches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
+          for (const sm of simpleMatches) {
+            const vid = sm[1];
+            if (!seenIds.has(vid)) {
+              seenIds.add(vid);
+              const idx = results.length + 1;
+              results.push({
+                videoId: vid,
+                title: `${clean} 노래방 버전 ${idx}`,
+                channel: 'YouTube',
+                badge: idx === 1 ? 'TJ 노래방' : idx === 2 ? '금영 노래방' : 'MR 반주'
+              });
+              if (results.length >= 4) break;
+            }
+          }
+        }
+
+        if (results.length > 0) return results;
+      }
+    } catch (e) {}
+  }
+
+  return results.length > 0 ? results : null;
 }
 
-// 통합 즉시 검색 & 자동 재생 함수 (URL 입력창 없음!)
+// 통합 검색 및 버전 선택 모달 띄우기 함수 (사용자가 직접 선택하여 재생)
 export async function executeKaraokeSearch(raw) {
   if (!raw || !raw.trim()) {
     showRetroModal({
@@ -503,17 +671,36 @@ export async function executeKaraokeSearch(raw) {
   const query = raw.trim();
   audioEngine.playMechanicalClick();
 
-  // 0. 유튜브 URL 링크 직접 입력된 경우 대응
+  // 0. 유튜브 URL 링크 직접 입력된 경우 즉시 재생
   const ytMatch = query.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
   if (ytMatch && ytMatch[1]) {
+    hideKaraokePicker();
     loadKaraokeVideo(ytMatch[1], '유튜브 노래방', 'YouTube Track');
-    renderVersionChips([]);
     return;
   }
 
-  // 1단계: 50+ 내장 애창곡/차트 DB에서 즉시 0ms 매칭 검사
+  // 1. 피커 모달 즉시 열고 검색 중 스피너 표시
+  const picker = document.getElementById('karaoke-search-picker');
+  const queryText = document.getElementById('picker-query-text');
+  const listEl = document.getElementById('picker-results-list');
+  if (picker && listEl) {
+    picker.style.display = 'flex';
+    if (queryText) queryText.textContent = `"${query}" 노래방 반주 선택`;
+    listEl.innerHTML = `
+      <div style="padding: 24px; text-align: center; color: var(--vfd-cyan); font-size: 11px;">
+        <div style="font-size: 24px; animation: spin 1s infinite linear; display: inline-block;">💿</div>
+        <div style="margin-top: 8px; font-weight: bold; font-size: 12px;">"${escapeHTML(query)}" 노래방 반주 찾는 중...</div>
+        <div style="font-size: 10px; color: #718096; margin-top: 4px;">TJ / 금영 / MR 가사 반주 목록을 검색하고 있습니다.</div>
+      </div>
+    `;
+  }
+
+  const candidates = [];
+  const seenIds = new Set();
+
+  // 2. 내장 50+ 애창곡/인기차트 DB 매칭 검사
   const normQuery = query.toLowerCase().replace(/[\s\-_]/g, '');
-  const localMatch = CURATED_KARAOKE_DB.find(song => {
+  const localMatches = CURATED_KARAOKE_DB.filter(song => {
     const normTitle = song.title.toLowerCase().replace(/[\s\-_]/g, '');
     const normArtist = song.artist.toLowerCase().replace(/[\s\-_]/g, '');
     return normTitle.includes(normQuery) || normQuery.includes(normTitle) ||
@@ -521,47 +708,74 @@ export async function executeKaraokeSearch(raw) {
            (song.keywords && song.keywords.some(k => normQuery.includes(k.toLowerCase().replace(/[\s\-_]/g, ''))));
   });
 
-  if (localMatch) {
-    loadKaraokeVideo(localMatch.vid, localMatch.title, localMatch.artist);
-    renderVersionChips([{ videoId: localMatch.vid, title: `${localMatch.title} (TJ/KY)` }]);
-    return;
-  }
-
-  // 2단계: 로딩 인디케이터 표시 후 온라인 노래방 검색
-  const karaokeFrame = document.getElementById('karaoke-embed-frame');
-  const placeholder = document.getElementById('karaoke-placeholder');
-  if (placeholder) {
-    placeholder.style.display = 'flex';
-    placeholder.innerHTML = `
-      <div class="placeholder-icon" style="animation: spin 1s infinite linear;">💿</div>
-      <div style="font-weight: 700; color: var(--vfd-cyan); font-size: 13px; margin-bottom: 2px;">
-        "${query}" 노래방 검색 중...
-      </div>
-      <div style="font-size: 10px; color: #7b8599;">실시간 가사 반주 영상을 찾아 바로 재생합니다.</div>
-    `;
-  }
-  if (karaokeFrame) karaokeFrame.style.display = 'none';
-
-  const onlineResults = await fetchOnlineKaraokeVideo(query);
-
-  if (onlineResults && onlineResults.length > 0) {
-    const top = onlineResults[0];
-    loadKaraokeVideo(top.videoId, query, '노래방');
-    renderVersionChips(onlineResults);
-  } else {
-    // 3단계: 검색 결과 없음 안내
-    if (placeholder) {
-      placeholder.innerHTML = `
-        <div class="placeholder-icon">⚠️</div>
-        <div style="font-weight: 700; color: #f87171; font-size: 13px; margin-bottom: 2px;">
-          "${query}" 영상을 자동 연결하지 못했습니다.
-        </div>
-        <div style="font-size: 10px; color: #7b8599; margin-top: 4px;">
-          곡명이나 가수명을 더 간단하게 입력해주시거나 메인 화면의 인기차트에서 선택해주세요.
-        </div>
-      `;
+  localMatches.forEach((m, idx) => {
+    if (!seenIds.has(m.vid)) {
+      seenIds.add(m.vid);
+      candidates.push({
+        videoId: m.vid,
+        title: `${m.title} - ${m.artist}`,
+        artist: m.artist,
+        channel: 'TJ/금영 공인 반주 (추천)',
+        badge: idx === 0 ? 'TJ 노래방' : '금영 노래방'
+      });
     }
+  });
+
+  // 3. 온라인 실시간 노래방 검색
+  try {
+    const online = await fetchOnlineKaraokeVideo(query);
+    if (online && online.length > 0) {
+      online.forEach(item => {
+        if (!seenIds.has(item.videoId)) {
+          seenIds.add(item.videoId);
+          candidates.push(item);
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('Online karaoke search error:', e);
   }
+
+  // 4. 피커 리스트 렌더링 (사용자가 직접 원하는 버전 선택)
+  showKaraokePicker(query, candidates);
+}
+
+// 완전 전원 셧다운 함수
+export function shutdownAppCompletely() {
+  audioEngine.playMechanicalClick();
+
+  // 1. 모든 오디오 엔진, 마이크 녹음 및 수음 하드웨어 강제 정지
+  audioEngine.shutdownMicrophone();
+  audioEngine.pause();
+  audioEngine.toggleTapeHiss(false);
+  audioEngine.stopVuMeter();
+  if (audioEngine.ctx && audioEngine.ctx.state !== 'closed') {
+    try {
+      audioEngine.ctx.close();
+    } catch (e) {}
+  }
+
+  // 2. 유튜브 노래방 iframe 완전 정지 및 제거 (백그라운드 소리 방지)
+  const karaokeFrame = document.getElementById('karaoke-embed-frame');
+  if (karaokeFrame) {
+    karaokeFrame.src = 'about:blank';
+    karaokeFrame.style.display = 'none';
+  }
+
+  // 3. 블랙 셧다운 오버레이 화면 전개
+  const powerScreen = document.getElementById('deck-power-off-screen');
+  if (powerScreen) {
+    powerScreen.style.display = 'flex';
+  }
+
+  // 4. 네이티브 앱 종료 시도
+  try {
+    window.close();
+  } catch (e) {}
+
+  try {
+    history.back();
+  } catch (e) {}
 }
 
 // ==================== 음성인식 (STT) 마이크 검색 ====================
@@ -701,13 +915,8 @@ function renderChartList(songs) {
       const searchInput = document.getElementById('studio-search-input');
       if (searchInput) searchInput.value = `${song.artist} - ${song.title}`;
 
-      // 노래 즉시 재생
-      if (song.vid) {
-        loadKaraokeVideo(song.vid, song.title, song.artist);
-        renderVersionChips([{ videoId: song.vid, title: `${song.title} (TJ/KY)` }]);
-      } else {
-        executeKaraokeSearch(`${song.artist} ${song.title}`);
-      }
+      // 버전 선택 모달 띄우기
+      executeKaraokeSearch(`${song.artist} ${song.title}`);
     };
 
     listEl.appendChild(item);
@@ -803,16 +1012,14 @@ function setupStudioControls() {
   const searchInput = document.getElementById('studio-search-input');
   const searchBtn = document.getElementById('studio-search-btn');
 
-  // 추천곡 칩 클릭 이벤트
+  // 추천곡 칩 클릭 이벤트 (버전 선택 모달 띄우기)
   document.querySelectorAll('.karaoke-chip').forEach(chip => {
     chip.onclick = () => {
       audioEngine.playMechanicalClick();
-      const vid = chip.dataset.vid;
       const title = chip.dataset.title;
       const artist = chip.dataset.artist;
       if (searchInput) searchInput.value = `${artist} - ${title}`;
-      loadKaraokeVideo(vid, title, artist);
-      renderVersionChips([{ videoId: vid, title: `${title} (추천)` }]);
+      executeKaraokeSearch(`${artist} ${title}`);
     };
   });
 
@@ -1006,6 +1213,34 @@ function setupStudioControls() {
       const titleVal = currentKaraokeTitle || (searchInput ? searchInput.value.trim() : '나의 노래방');
       const artistVal = currentKaraokeArtist || '원곡 가수';
       promptSaveTapeModal(titleVal, blob, artistVal);
+    };
+  }
+
+  // ==================== 노래방 버전 피커 & 서브 툴바 버튼 바인딩 ====================
+  const pickerCloseBtn = document.getElementById('picker-btn-close');
+  if (pickerCloseBtn) {
+    pickerCloseBtn.onclick = () => {
+      audioEngine.playMechanicalClick();
+      hideKaraokePicker();
+    };
+  }
+
+  const reopenPickerBtn = document.getElementById('studio-btn-reopen-picker');
+  if (reopenPickerBtn) {
+    reopenPickerBtn.onclick = () => {
+      audioEngine.playMechanicalClick();
+      const q = searchInput?.value.trim() || currentKaraokeTitle || '노래방';
+      executeKaraokeSearch(q);
+    };
+  }
+
+  const extYtBtn = document.getElementById('studio-btn-external-yt');
+  if (extYtBtn) {
+    extYtBtn.onclick = () => {
+      audioEngine.playMechanicalClick();
+      if (currentKaraokeVideoId) {
+        window.open(`https://www.youtube.com/watch?v=${currentKaraokeVideoId}`, '_blank');
+      }
     };
   }
 }
