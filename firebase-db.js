@@ -169,51 +169,58 @@ export async function saveTape(tapeData, audioBlob = null) {
         contentType: audioBlob.type || 'audio/webm'
       });
       audioUrl = await getDownloadURL(snapshot.ref);
-      console.log('Audio uploaded to Firebase Storage:', audioUrl);
+      console.log('Audio uploaded successfully to Firebase Storage:', audioUrl);
     } catch (uploadErr) {
-      console.warn('Storage upload error, saving blob locally via IndexedDB:', uploadErr);
-      // 오프라인이거나 Storage 권한 실패 시 Blob을 DataURL 또는 Blob 자체로 로컬 보관
+      console.warn('Firebase Storage upload error, will save audio locally:', uploadErr);
       if (audioBlob) {
-        audioUrl = URL.createObjectURL(audioBlob);
+        try {
+          audioUrl = URL.createObjectURL(audioBlob);
+        } catch (e) {}
       }
     }
   }
 
-  const finalTape = {
-    ...tapeData,
+  // 2. Firestore용 순수 직렬화 메타데이터 (Blob 제외)
+  const firestoreData = {
     id: tapeId,
-    audioUrl,
-    storagePath,
+    title: tapeData.title || 'Untitled',
+    artist: tapeData.artist || 'Unknown Artist',
+    folder: tapeData.folder || '가요',
+    audioUrl: audioUrl || '',
+    storagePath: storagePath || '',
     createdAt: Date.now(),
     recordedAt: tapeData.recordedAt || new Date().toISOString().split('T')[0],
     playCount: tapeData.playCount || 0,
     isFavorite: !!tapeData.isFavorite,
-    folder: tapeData.folder || '전체',
     keyShift: tapeData.keyShift || 0
   };
 
-  // 2. Firestore에 메타데이터 저장
   if (db) {
     try {
       const tapeDocRef = doc(db, 'tapes', tapeId);
       await setDoc(tapeDocRef, {
-        ...finalTape,
+        ...firestoreData,
         updatedAt: serverTimestamp()
       });
-      console.log('Tape saved to Firestore:', tapeId);
+      console.log('Tape saved to Firestore successfully:', tapeId);
     } catch (dbErr) {
       console.warn('Firestore write error, falling back to local:', dbErr);
     }
   }
 
-  // 3. IndexedDB에 로컬 복사본 저장
-  await saveToLocalDB(finalTape);
+  // 3. IndexedDB에 오디오 원본(Blob)과 함께 로컬 영구 백업
+  const localTape = {
+    ...firestoreData,
+    updatedAt: Date.now(),
+    audioBlob: audioBlob || null
+  };
+  await saveToLocalDB(localTape);
 
-  return finalTape;
+  return localTape;
 }
 
 /**
- * 모든 테이프 목록 불러오기 (Firestore 우선, 미연결 시 IndexedDB)
+ * 모든 테이프 목록 불러오기 (Firestore 우선, 로컬 IndexedDB 백업 동시 병합)
  */
 export async function getAllTapes() {
   let tapes = [];
@@ -231,12 +238,31 @@ export async function getAllTapes() {
     }
   }
 
-  // Firestore 데이터가 없거나 로드 실패 시 로컬 DB 확인
-  if (tapes.length === 0) {
-    tapes = await loadFromLocalDB();
+  // Firestore 데이터와 로컬 IndexedDB 데이터 머지 (오프라인 생성 테이프 및 바이너리 Blob 복원)
+  const localTapes = await loadFromLocalDB();
+  const seenIds = new Set(tapes.map(t => t.id));
+
+  for (const lt of localTapes) {
+    if (!seenIds.has(lt.id)) {
+      seenIds.add(lt.id);
+      if ((!lt.audioUrl || lt.audioUrl.startsWith('blob:')) && lt.audioBlob) {
+        try {
+          lt.audioUrl = URL.createObjectURL(lt.audioBlob);
+        } catch (e) {}
+      }
+      tapes.push(lt);
+    } else {
+      // 클라우드 테이프에 로컬 Blob이 있다면 연결 복원
+      const existing = tapes.find(t => t.id === lt.id);
+      if (existing && (!existing.audioUrl || existing.audioUrl.startsWith('blob:')) && lt.audioBlob) {
+        try {
+          existing.audioUrl = URL.createObjectURL(lt.audioBlob);
+        } catch (e) {}
+      }
+    }
   }
 
-  // 여전히 없으면 기본 샘플 테이프 제공
+  // 데이터가 아예 없으면 기본 샘플 테이프 제공
   if (tapes.length === 0) {
     for (const sample of DEFAULT_SAMPLE_TAPES) {
       await saveToLocalDB(sample);

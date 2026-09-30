@@ -1002,6 +1002,13 @@ html, body {
   border-color: rgba(168, 85, 247, 0.4);
 }
 
+.picker-tag-badge.badge-playable {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.5);
+  font-weight: 800;
+}
+
 .picker-item.is-current-playing {
   background: #172236;
   border-color: var(--vfd-cyan);
@@ -1411,6 +1418,53 @@ html, body {
   height: 4px;
 }
 
+/* 대형 레드 노래 시작 버튼 (운전 중/노래 중 원터치 초대형 물리 버튼) */
+.studio-launch-bar {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  margin-top: 8px;
+  min-height: 64px;
+}
+
+.btn-big-rec {
+  width: 100%;
+  min-height: 64px;
+  background: linear-gradient(180deg, #f43f5e 0%, #e11d48 50%, #9f1239 100%);
+  border: 2px solid #fb7185;
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.4);
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.btn-big-rec:hover {
+  background: linear-gradient(180deg, #fb7185 0%, #f43f5e 50%, #be123c 100%);
+  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.65), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.btn-big-rec:active {
+  transform: translateY(2px) scale(0.98);
+  background: linear-gradient(180deg, #e11d48 0%, #be123c 50%, #881337 100%);
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.7);
+}
+
+.btn-big-rec span {
+  font-size: 24px;
+  color: #ffffff;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95));
+}
+
 .karaoke-quick-chips {
   display: flex;
   align-items: center;
@@ -1735,17 +1789,143 @@ html, body {
 .rack-snap-slot {
   scroll-snap-align: center;
   scroll-snap-stop: always;
-  width: 100%;
+  width: min(340px, 94%);
+  background: #11141c;
+  border: 1px solid #232938;
+  border-radius: 8px;
   display: flex;
-  justify-content: center;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
-  filter: brightness(0.7);
+  filter: brightness(0.9);
 }
 
-.rack-snap-slot.slot-focused {
-  transform: scale(1.05);
+.rack-snap-slot:hover, .rack-snap-slot.slot-focused {
+  border-color: var(--vfd-cyan);
+  box-shadow: 0 6px 20px rgba(0, 240, 192, 0.2);
   filter: brightness(1.05);
+  transform: scale(1.02);
+}
+
+/* Rack Slot Toolbar & Favorite Star Button */
+.rack-slot-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #151924;
+  border-bottom: 1px solid #222a3a;
+}
+
+.rack-slot-tag {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--vfd-cyan);
+  background: rgba(0, 240, 192, 0.1);
+  border: 1px solid rgba(0, 240, 192, 0.3);
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.rack-slot-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rack-star-btn {
+  background: transparent;
+  border: none;
+  font-size: 19px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0 4px;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.rack-star-btn:hover {
+  transform: scale(1.25);
+  color: #fbbf24;
+}
+
+.rack-star-btn.is-fav {
+  color: #f59e0b;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+}
+
+.rack-del-btn {
+  background: #201317;
+  border: 1px solid #4a1d24;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+  color: #fca5a5;
+  transition: all 0.1s ease;
+}
+
+.rack-del-btn:hover {
+  background: #7f1d1d;
+  color: #fff;
+}
+
+.rack-slot-play-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #151924;
+  border-top: 1px solid #222a3a;
+  gap: 8px;
+}
+
+.rack-slot-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rack-meta-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rack-meta-artist {
+  font-size: 9.5px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rack-play-now-btn {
+  height: 26px;
+  padding: 0 10px;
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid #38bdf8;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.1s ease;
+}
+
+.rack-play-now-btn:active {
+  transform: scale(0.96);
 }
 
 .rack-shelf-container::-webkit-scrollbar {

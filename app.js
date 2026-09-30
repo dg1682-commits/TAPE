@@ -87,14 +87,14 @@ function showChangelogModal() {
   const changelogHTML = `
     <div class="changelog-box">
       <div>
-        <span class="changelog-version-tag">VERSION 1.2.0 (LATEST)</span>
-        <div style="font-size: 11px; color: #8892b0; margin-bottom: 8px;">배포 일자: 2026-09-30 | 인앱 플레이어 & 피치 조절 테스트 혁신</div>
+        <span class="changelog-version-tag">VERSION 1.3.0 (LATEST)</span>
+        <div style="font-size: 11px; color: #8892b0; margin-bottom: 8px;">배포 일자: 2026-09-30 | 퍼가기 보장 MR & 파이어베이스 테이프 랙 & 대형 녹음 버튼</div>
         <ul class="changelog-list">
-          <li><strong>어플 내 완결형 인앱 영상 플레이어:</strong> 외부 유튜브 앱으로 튕기지 않고 앱 화면 및 인앱 플로팅 새창(새창/도킹)으로 100% 인앱 재생</li>
-          <li><strong>0초 즉시 청음 내장 피치 테스트 엔진:</strong> [🎹 피치 테스트] 버튼 클릭 시 C-G-Am-F 화음 반주가 루프 재생되며 [♭/♯] 버튼으로 실시간 키 변화(-6 ~ +6) 즉각 청음 확인</li>
-          <li><strong>내 스마트폰 로컬 MP3 반주 지원:</strong> [📁 MP3] 버튼으로 내 기기의 음원을 불러와 키를 조절하고 마이크와 함께 테이프에 녹음</li>
-          <li><strong>메인 대시보드 균형 잡힌 2분할 개편:</strong> 찌그러짐과 우측 공백 없이 좌측 테이프 스테이지 / 우측 VFD & 가요 인기차트 TOP 50 완벽 배치</li>
-          <li><strong>안전한 앱 전원 셧다운:</strong> 종료 시 전체화면 자동 해제로 스마트폰 네비게이션 홈/뒤로가기 즉시 노출 및 완벽 셧다운</li>
+          <li><strong>🟢 재생 보장(퍼가기 허용) MR 반주 우선 노출:</strong> 퍼가기가 제한된 TJ 공식 영상 대신 일반 크리에이터 및 가사 반주 MR을 자동으로 찾아 [🟢 재생 보장 MR] 배지를 달아 최상단에 배치</li>
+          <li><strong>💾 파이어베이스 클라우드 & 로컬 랙 즉시 저장:</strong> 녹음 완료 즉시 Firestore/Storage에 업로드되며 테이프 랙(RACK)에 바로 노출 및 원터치 감상</li>
+          <li><strong>★ 즐겨찾기 별표 필터링 시스템:</strong> 테이프 랙에서 각 테이프마다 [★ 별표]를 눌러 즐겨찾기를 등록하고 [★ 즐겨찾기] 탭에서 따로 모아보기 지원</li>
+          <li><strong>🔴 원터치 대형 물리 녹음 시작 버튼:</strong> 운전 중이나 노래방 모드에서 한 손으로도 쉽게 누를 수 있는 64px 대형 3D 레드 녹음 버튼 적용</li>
+          <li><strong>⌨️ 검색 완료 및 엔터 시 모바일 키보드 자동 숨김:</strong> 검색어 입력 후 엔터나 검색 버튼 클릭 시 가상 키보드가 즉시 내려가 화면 가림 완벽 방지</li>
         </ul>
       </div>
     </div>
@@ -611,15 +611,26 @@ export function showKaraokePicker(query, candidates = []) {
     return;
   }
 
-  candidates.forEach(item => {
+  // 퍼가기 허용/인앱 재생 보장 항목을 상단에 우선 정렬
+  const sortedCandidates = [...candidates].sort((a, b) => {
+    const aPlayable = a.isPlayable !== false ? 1 : 0;
+    const bPlayable = b.isPlayable !== false ? 1 : 0;
+    return bPlayable - aPlayable;
+  });
+
+  sortedCandidates.forEach(item => {
     const row = document.createElement('div');
     const isPlaying = item.videoId === currentKaraokeVideoId;
     row.className = `picker-item ${isPlaying ? 'is-current-playing' : ''}`;
 
-    let badgeClass = '';
-    if (item.badge === 'TJ 노래방') badgeClass = 'badge-tj';
-    else if (item.badge === '금영 노래방') badgeClass = 'badge-ky';
-    else if (item.badge === 'MR 가사 반주') badgeClass = 'badge-mr';
+    let badgeClass = item.badgeType || '';
+    if (!badgeClass) {
+      if (/tj|티제이/i.test(item.badge || '')) badgeClass = 'badge-tj';
+      else if (/ky|금영/i.test(item.badge || '')) badgeClass = 'badge-ky';
+      else if (/재생 보장|보장|크리에이터/i.test(item.badge || '')) badgeClass = 'badge-playable';
+      else if (/mr|가사/i.test(item.badge || '')) badgeClass = 'badge-mr';
+      else badgeClass = 'badge-playable';
+    }
 
     row.innerHTML = `
       <div class="picker-item-info">
@@ -684,10 +695,10 @@ export function hideKaraokePicker() {
   }
 }
 
-// 실시간 온라인 노래방 검색 (Invidious API & CORS 프록시)
+// 실시간 온라인 노래방 검색 (Invidious API & CORS 프록시 - 크리에이터 MR 및 가사 반주 동시 수집)
 async function fetchOnlineKaraokeVideo(raw) {
   const clean = raw.trim();
-  const query = `${clean} 노래방`;
+  const searchQueries = [`${clean} MR 가사`, `${clean} 노래방`];
   const results = [];
   const seenIds = new Set();
 
@@ -700,105 +711,111 @@ async function fetchOnlineKaraokeVideo(raw) {
     'https://invidious.drgns.space'
   ];
 
-  for (const base of invidiousInstances) {
-    try {
-      const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), 2200);
-      const res = await fetch(`${base}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
-        signal: ctrl.signal
-      });
-      clearTimeout(tid);
-      if (res.ok) {
-        const items = await res.json();
-        if (Array.isArray(items) && items.length > 0) {
-          for (const item of items) {
-            if (item.videoId && !seenIds.has(item.videoId)) {
-              seenIds.add(item.videoId);
-              const title = item.title || clean;
-              let badge = '노래방 반주';
-              if (/tj|티제이/i.test(title)) badge = 'TJ 노래방';
-              else if (/ky|금영/i.test(title)) badge = '금영 노래방';
-              else if (/mr|엠알|inst/i.test(title)) badge = 'MR 가사 반주';
+  const parseAndAdd = (vid, rawTitle, channel) => {
+    if (!vid || seenIds.has(vid)) return;
+    seenIds.add(vid);
+    const title = rawTitle || clean;
+    let badge = '🟢 재생 보장 MR';
+    let badgeType = 'badge-playable';
+    let isPlayable = true;
 
-              results.push({
-                videoId: item.videoId,
-                title: title,
-                channel: item.author || '노래방',
-                badge: badge
-              });
-              if (results.length >= 6) break;
+    if (/tj|티제이/i.test(title) || /tj|티제이/i.test(channel || '')) {
+      badge = '⚠️ TJ 노래방 (퍼가기 제한 가능)';
+      badgeType = 'badge-tj';
+      isPlayable = false;
+    } else if (/ky|금영/i.test(title) || /ky|금영/i.test(channel || '')) {
+      badge = '🟢 금영 노래방 (재생 보장)';
+      badgeType = 'badge-ky';
+      isPlayable = true;
+    } else if (/mr|엠알|inst|가사|반주/i.test(title)) {
+      badge = '🟢 크리에이터 MR (가사/재생 보장)';
+      badgeType = 'badge-playable';
+      isPlayable = true;
+    } else {
+      badge = '🟢 일반 반주 (재생 가능)';
+      badgeType = 'badge-playable';
+      isPlayable = true;
+    }
+
+    results.push({
+      videoId: vid,
+      title: title,
+      channel: channel || 'YouTube Creator',
+      badge: badge,
+      badgeType: badgeType,
+      isPlayable: isPlayable
+    });
+  };
+
+  for (const q of searchQueries) {
+    for (const base of invidiousInstances) {
+      try {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 2000);
+        const res = await fetch(`${base}/api/v1/search?q=${encodeURIComponent(q)}&type=video`, {
+          signal: ctrl.signal
+        });
+        clearTimeout(tid);
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            for (const item of items) {
+              if (item.videoId) {
+                parseAndAdd(item.videoId, item.title, item.author);
+                if (results.length >= 8) break;
+              }
             }
+            if (results.length >= 5) break;
           }
-          if (results.length > 0) return results;
         }
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
+    if (results.length >= 6) break;
   }
 
-  // 2. AllOrigins / CORS 프록시로 YouTube 검색 결과 파싱
-  const proxies = [
-    (q) => `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`)}`,
-    (q) => `https://corsproxy.io/?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`)}`
-  ];
+  // 2. AllOrigins / CORS 프록시로 YouTube 검색 결과 보강
+  if (results.length < 4) {
+    const proxies = [
+      (q) => `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`)}`,
+      (q) => `https://corsproxy.io/?url=${encodeURIComponent(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`)}`
+    ];
 
-  for (const proxyGen of proxies) {
-    try {
-      const ctrl = new AbortController();
-      const tid = setTimeout(() => ctrl.abort(), 2800);
-      const res = await fetch(proxyGen(query), { signal: ctrl.signal });
-      clearTimeout(tid);
-      if (res.ok) {
-        let html = '';
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          const json = await res.json();
-          html = json.contents || '';
-        } else {
-          html = await res.text();
-        }
-
-        const videoMatches = [...html.matchAll(/"videoRenderer":\{"videoId":"([a-zA-Z0-9_-]{11})".*?"title":\{"runs":\[\{"text":"([^"]+)"\}/g)];
-        if (videoMatches.length > 0) {
-          for (const m of videoMatches) {
-            const vid = m[1];
-            const title = m[2];
-            if (!seenIds.has(vid)) {
-              seenIds.add(vid);
-              let badge = '노래방 반주';
-              if (/tj|티제이/i.test(title)) badge = 'TJ 노래방';
-              else if (/ky|금영/i.test(title)) badge = '금영 노래방';
-              else if (/mr|엠알|inst/i.test(title)) badge = 'MR 가사 반주';
-
-              results.push({
-                videoId: vid,
-                title: title,
-                channel: 'YouTube',
-                badge: badge
-              });
-              if (results.length >= 6) break;
+    for (const q of searchQueries) {
+      for (const proxyGen of proxies) {
+        try {
+          const ctrl = new AbortController();
+          const tid = setTimeout(() => ctrl.abort(), 2500);
+          const res = await fetch(proxyGen(q), { signal: ctrl.signal });
+          clearTimeout(tid);
+          if (res.ok) {
+            let html = '';
+            const contentType = res.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+              const json = await res.json();
+              html = json.contents || '';
+            } else {
+              html = await res.text();
             }
-          }
-        } else {
-          const simpleMatches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
-          for (const sm of simpleMatches) {
-            const vid = sm[1];
-            if (!seenIds.has(vid)) {
-              seenIds.add(vid);
-              const idx = results.length + 1;
-              results.push({
-                videoId: vid,
-                title: `${clean} 노래방 버전 ${idx}`,
-                channel: 'YouTube',
-                badge: idx === 1 ? 'TJ 노래방' : idx === 2 ? '금영 노래방' : 'MR 반주'
-              });
-              if (results.length >= 4) break;
-            }
-          }
-        }
 
-        if (results.length > 0) return results;
+            const videoMatches = [...html.matchAll(/"videoRenderer":\{"videoId":"([a-zA-Z0-9_-]{11})".*?"title":\{"runs":\[\{"text":"([^"]+)"\}/g)];
+            if (videoMatches.length > 0) {
+              for (const m of videoMatches) {
+                parseAndAdd(m[1], m[2], 'YouTube');
+                if (results.length >= 8) break;
+              }
+            } else {
+              const simpleMatches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
+              for (const sm of simpleMatches) {
+                parseAndAdd(sm[1], `${clean} 가사 반주 버전 ${results.length + 1}`, 'YouTube');
+                if (results.length >= 5) break;
+              }
+            }
+            if (results.length >= 4) break;
+          }
+        } catch (e) {}
       }
-    } catch (e) {}
+      if (results.length >= 6) break;
+    }
   }
 
   return results.length > 0 ? results : null;
@@ -837,7 +854,7 @@ export async function executeKaraokeSearch(raw) {
       <div style="padding: 24px; text-align: center; color: var(--vfd-cyan); font-size: 11px;">
         <div style="font-size: 24px; animation: spin 1s infinite linear; display: inline-block;">💿</div>
         <div style="margin-top: 8px; font-weight: bold; font-size: 12px;">"${escapeHTML(query)}" 노래방 반주 찾는 중...</div>
-        <div style="font-size: 10px; color: #718096; margin-top: 4px;">TJ / 금영 / MR 가사 반주 목록을 검색하고 있습니다.</div>
+        <div style="font-size: 10px; color: #718096; margin-top: 4px;">TJ / 금영 / 크리에이터 MR 가사 반주 목록을 검색하고 있습니다.</div>
       </div>
     `;
   }
@@ -869,7 +886,9 @@ export async function executeKaraokeSearch(raw) {
         title: `${m.title} - ${m.artist}`,
         artist: m.artist,
         channel: '고음질 MR 반주 (가사 지원 - 인앱 재생)',
-        badge: 'MR 가사 반주'
+        badge: '🟢 재생 보장 MR',
+        badgeType: 'badge-playable',
+        isPlayable: true
       });
     }
   });
@@ -897,7 +916,9 @@ export async function executeKaraokeSearch(raw) {
         title: `${song.title} - ${song.artist}`,
         artist: song.artist,
         channel: '추천 공인 노래방 반주',
-        badge: idx % 2 === 0 ? 'TJ 노래방' : '금영 노래방'
+        badge: '🟢 재생 보장 MR',
+        badgeType: 'badge-playable',
+        isPlayable: true
       });
     });
   }
@@ -997,7 +1018,10 @@ function setupVoiceSearch(searchInput) {
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript.trim();
         if (transcript) {
-          if (searchInput) searchInput.value = transcript;
+          if (searchInput) {
+            searchInput.value = transcript;
+            searchInput.blur();
+          }
           executeKaraokeSearch(transcript);
         }
       };
@@ -1197,7 +1221,10 @@ function setupStudioControls() {
       const title = chip.dataset.title;
       const artist = chip.dataset.artist;
       const vid = chip.dataset.vid;
-      if (searchInput) searchInput.value = `${artist} - ${title}`;
+      if (searchInput) {
+        searchInput.value = `${artist} - ${title}`;
+        searchInput.blur();
+      }
       if (vid) {
         loadKaraokeVideo(vid, title, artist);
       } else {
@@ -1206,11 +1233,18 @@ function setupStudioControls() {
     };
   });
 
-  // 검색 버튼 및 엔터키 이벤트 (즉시 검색 & 재생)
+  // 검색 버튼 및 엔터키 이벤트 (즉시 검색 & 모바일 가상키보드 내리기)
   if (searchBtn && searchInput) {
-    searchBtn.onclick = () => executeKaraokeSearch(searchInput.value);
+    searchBtn.onclick = () => {
+      searchInput.blur();
+      executeKaraokeSearch(searchInput.value);
+    };
     searchInput.onkeydown = (e) => {
-      if (e.key === 'Enter') executeKaraokeSearch(searchInput.value);
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchInput.blur();
+        executeKaraokeSearch(searchInput.value);
+      }
     };
   }
 
@@ -1456,17 +1490,29 @@ function promptSaveTapeModal(defaultTitle, audioBlob, defaultArtist = '원곡 �
         state.tapes.unshift(savedTape);
         state.selectedTape = savedTape;
 
+        // 랙, 대시보드, 플레이어 즉각 동기화 갱신
+        renderRack();
+        renderDashboard();
+        renderPlayer();
+
         showRetroModal({
           title: '✨ SAVED TO CLOUD',
           contentHTML: `
-            <p><strong>[${title}]</strong> 테이프가 파이어베이스 클라우드에 성공적으로 구워졌습니다!</p>
+            <p><strong>[${escapeHTML(title)}]</strong> 테이프가 파이어베이스 클라우드에 성공적으로 구워졌습니다!</p>
             <p style="font-size: 11px; color: #7b8599; margin-top: 6px;">플레이어 또는 테이프 랙에서 언제든지 감상하실 수 있습니다.</p>
           `,
-          confirmText: '플레이어로 이동',
+          confirmText: '테이프 랙(RACK)에서 확인',
+          cancelText: '플레이어로 이동',
           onConfirm: () => {
+            document.querySelectorAll('.gnb-mech-key').forEach(b => b.classList.remove('is-engaged'));
+            document.querySelector('.gnb-mech-key[data-view="rack"]')?.classList.add('is-engaged');
+            switchView('rack');
+          },
+          onCancel: () => {
             document.querySelectorAll('.gnb-mech-key').forEach(b => b.classList.remove('is-engaged'));
             document.querySelector('.gnb-mech-key[data-view="player"]')?.classList.add('is-engaged');
             switchView('player');
+            startPlayback();
           }
         });
       } catch (err) {
@@ -1700,21 +1746,105 @@ function renderRack() {
     return t.folder === state.currentFilter;
   });
 
+  if (filtered.length === 0) {
+    shelf.innerHTML = `
+      <div style="padding: 32px 16px; text-align: center; color: #94a3b8;">
+        <div style="font-size: 32px; margin-bottom: 8px;">📼</div>
+        <div style="font-size: 13px; font-weight: bold; color: #cbd5e1;">보관된 테이프가 없습니다.</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
+          ${state.currentFilter === 'favorite' ? '★ 별표를 눌러 즐겨찾기에 테이프를 추가해보세요!' : '[● REC / SING] 메뉴에서 새로운 노래를 녹음해보세요!'}
+        </div>
+      </div>
+    `;
+    return;
+  }
+
   filtered.forEach(tape => {
     const slot = document.createElement('div');
     slot.className = 'rack-snap-slot';
     slot.dataset.id = tape.id;
 
+    // 1. 상단 툴바 (폴더 배지 + 즐겨찾기 별표 버튼 + 삭제 버튼)
+    const toolbar = document.createElement('div');
+    toolbar.className = 'rack-slot-toolbar';
+    toolbar.innerHTML = `
+      <span class="rack-slot-tag">${escapeHTML(tape.folder || '가요')}</span>
+      <div class="rack-slot-actions">
+        <button class="rack-star-btn ${tape.isFavorite ? 'is-fav' : ''}" title="${tape.isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}">
+          ${tape.isFavorite ? '★' : '☆'}
+        </button>
+        <button class="rack-del-btn" title="테이프 영구 삭제">🗑️</button>
+      </div>
+    `;
+
+    // 2. 카세트 비주얼
     const cassette = createCassetteElement(tape, {
       size: 'medium',
       isPlaying: false,
       progress: 0.2
     });
 
-    slot.appendChild(cassette);
+    // 3. 하단 트랙 정보 및 즉시 재생 바
+    const playBar = document.createElement('div');
+    playBar.className = 'rack-slot-play-bar';
+    playBar.innerHTML = `
+      <div class="rack-slot-meta">
+        <span class="rack-meta-title">${escapeHTML(tape.title || 'Untitled')}</span>
+        <span class="rack-meta-artist">${escapeHTML(tape.artist || '가수 미상')} (${tape.recordedAt || ''})</span>
+      </div>
+      <button class="rack-play-now-btn">
+        <span>▶</span> 재생
+      </button>
+    `;
 
-    // 클릭 시 플레이어로 장착 & 재생
-    slot.onclick = () => {
+    slot.appendChild(toolbar);
+    slot.appendChild(cassette);
+    slot.appendChild(playBar);
+
+    // 즐겨찾기(별표) 토글 이벤트
+    const starBtn = toolbar.querySelector('.rack-star-btn');
+    starBtn.onclick = async (e) => {
+      e.stopPropagation();
+      audioEngine.playMechanicalClick();
+      const newStatus = await toggleTapeFavorite(tape.id, !!tape.isFavorite);
+      tape.isFavorite = newStatus;
+      starBtn.classList.toggle('is-fav', newStatus);
+      starBtn.textContent = newStatus ? '★' : '☆';
+      starBtn.title = newStatus ? '즐겨찾기 해제' : '즐겨찾기 추가';
+      if (state.currentFilter === 'favorite') {
+        renderRack();
+      }
+    };
+
+    // 삭제 버튼 이벤트
+    const delBtn = toolbar.querySelector('.rack-del-btn');
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      audioEngine.playMechanicalClick();
+      showRetroModal({
+        title: '🗑️ TAPE DISPOSAL',
+        contentHTML: `
+          <p><strong>[${escapeHTML(tape.title)}]</strong> 테이프를 영구 삭제하시겠습니까?</p>
+          <p style="font-size: 11px; color: #94a3b8; margin-top: 6px;">클라우드와 기기에서 모두 삭제되며 되돌릴 수 없습니다.</p>
+        `,
+        confirmText: '삭제',
+        cancelText: '취소',
+        onConfirm: async () => {
+          await deleteTape(tape.id, tape.storagePath);
+          state.tapes = state.tapes.filter(t => t.id !== tape.id);
+          if (state.selectedTape && state.selectedTape.id === tape.id) {
+            state.selectedTape = state.tapes[0] || null;
+          }
+          renderRack();
+          renderDashboard();
+          renderPlayer();
+        }
+      });
+    };
+
+    // 재생 함수 (카세트 본체 또는 하단 재생 버튼 클릭)
+    const playThisTape = (e) => {
+      if (e) e.stopPropagation();
       audioEngine.playMechanicalClick();
       state.selectedTape = tape;
       document.querySelectorAll('.gnb-mech-key').forEach(b => b.classList.remove('is-engaged'));
@@ -1722,6 +1852,9 @@ function renderRack() {
       switchView('player');
       startPlayback();
     };
+
+    cassette.onclick = playThisTape;
+    playBar.onclick = playThisTape;
 
     shelf.appendChild(slot);
   });
