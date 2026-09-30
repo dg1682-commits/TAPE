@@ -149,18 +149,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // 2. iOS/Android 핀치 줌 및 더블 탭 확대 방지
-  document.addEventListener('gesturestart', (e) => e.preventDefault());
-  let lastTouchEnd = 0;
-  document.addEventListener('touchend', (e) => {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) {
-      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-      }
-    }
-    lastTouchEnd = now;
-  }, false);
+  // 3. PWA Service Worker 등록 (크롬 WebAPK 승격 및 주소창 제거)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(err => {
+      console.warn('Service worker registration failed:', err);
+    });
+  }
+
+  // 4. 전체화면 토글 버튼 (원터치로 브라우저 주소창 & 상단바 숨기기)
+  const fullscreenBtn = document.getElementById('btn-fullscreen-toggle');
+  if (fullscreenBtn) {
+    fullscreenBtn.onclick = () => {
+      audioEngine.playMechanicalClick();
+      toggleAppFullscreen();
+    };
+  }
 
   // 첫 사용자 상호작용 시 오디오 컨텍스트 기동
   document.body.addEventListener('click', () => {
@@ -846,4 +849,22 @@ function renderSegmentBar(segments, percent) {
       }
     }
   });
+}
+
+// ==================== FULLSCREEN TOGGLE (주소창 숨기기) ====================
+function toggleAppFullscreen() {
+  const doc = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (doc.requestFullscreen) {
+      doc.requestFullscreen().catch(err => console.warn(err));
+    } else if (doc.webkitRequestFullscreen) {
+      doc.webkitRequestFullscreen();
+    }
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(err => console.warn(err));
+    } else if (document.webkitExitFullscreen) {
+      document.webkitExitFullscreen();
+    }
+  }
 }

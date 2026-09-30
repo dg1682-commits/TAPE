@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>PWA APK 아이콘 & 스크린샷 1초 자동 생성기</title>
+  <style>
+    body {
+      background: #0d0f14;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    .card {
+      background: #181b24;
+      border: 1px solid #2d3345;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    h1 { font-size: 20px; color: #00ffcc; margin-bottom: 12px; }
+    p { font-size: 13px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }
+    button {
+      background: linear-gradient(180deg, #e53935 0%, #b71c1c 100%);
+      border: 1px solid #ff5252;
+      color: #fff;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 14px 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
+      transition: transform 0.1s ease;
+    }
+    button:active { transform: scale(0.97); }
+    .status { margin-top: 18px; font-size: 13px; color: #4ade80; display: none; }
+    canvas { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>📼 TAPE-SING APK 리소스 자동 생성</h1>
+    <p>
+      PWABuilder에서 APK 패키징 통과를 위해 요구하는<br>
+      <strong>icon-192.png, icon-512.png, screenshot.png</strong> 3개 파일을<br>
+      Canvas로 즉시 렌더링하여 다운로드합니다.
+    </p>
+
+    <button id="btn-generate">📦 아이콘 & 스크린샷 3종 다운로드</button>
+    <div id="status" class="status">✅ 3개 파일 다운로드 완료! 다운로드 폴더에서 프로젝트 폴더로 옮겨주세요.</div>
+  </div>
+
+  <canvas id="c192" width="192" height="192"></canvas>
+  <canvas id="c512" width="512" height="512"></canvas>
+  <canvas id="cScreen" width="1280" height="720"></canvas>
+
+  <script>
+    function drawCassette(ctx, size) {
+      // 배경 라운드 사각
+      ctx.fillStyle = '#12141a';
+      ctx.fillRect(0, 0, size, size);
+
+      // 본체
+      const pad = size * 0.1;
+      const w = size * 0.8;
+      const h = size * 0.52;
+      const x = pad;
+      const y = (size - h) / 2;
+
+      ctx.fillStyle = '#1c1f28';
+      ctx.strokeStyle = '#3b4356';
+      ctx.lineWidth = size * 0.015;
+      roundRect(ctx, x, y, w, h, size * 0.04);
+      ctx.fill();
+      ctx.stroke();
+
+      // 빨간 포인트 라벨
+      const lw = w * 0.82;
+      const lh = h * 0.55;
+      const lx = x + (w - lw) / 2;
+      const ly = y + size * 0.035;
+      ctx.fillStyle = '#dc2626';
+      roundRect(ctx, lx, ly, lw, lh, size * 0.02);
+      ctx.fill();
+
+      // 중앙 창
+      const winW = w * 0.5;
+      const winH = h * 0.28;
+      const winX = x + (w - winW) / 2;
+      const winY = y + (h - winH) / 2 + size * 0.02;
+      ctx.fillStyle = '#0a0c10';
+      roundRect(ctx, winX, winY, winW, winH, size * 0.015);
+      ctx.fill();
+
+      // 두 개의 릴 구멍
+      const r = size * 0.045;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(winX + winW * 0.25, winY + winH * 0.5, r, 0, Math.PI * 2);
+      ctx.arc(winX + winW * 0.75, winY + winH * 0.5, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#0a0c10';
+      ctx.beginPath();
+      ctx.arc(winX + winW * 0.25, winY + winH * 0.5, r * 0.45, 0, Math.PI * 2);
+      ctx.arc(winX + winW * 0.75, winY + winH * 0.5, r * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawScreenshot(ctx) {
+      // 1280x720 스크린샷 배경
+      ctx.fillStyle = '#08090c';
+      ctx.fillRect(0, 0, 1280, 720);
+
+      // 섀시
+      ctx.fillStyle = '#1e222b';
+      ctx.strokeStyle = '#32394a';
+      ctx.lineWidth = 4;
+      roundRect(ctx, 40, 40, 1200, 640, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      // 헤더
+      ctx.fillStyle = '#00f0c0';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.fillText('TAPE-SING RS-M85 HI-FI STEREO', 70, 85);
+
+      // 카세트
+      drawCassette(ctx, 500);
+
+      // VFD 텍스트
+      ctx.fillStyle = '#ffaa00';
+      ctx.font = '20px monospace';
+      ctx.fillText('RETRO KARAOKE STUDIO | CLOUD DB: TAPE-SING', 700, 200);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 32px sans-serif';
+      ctx.fillText('City Pop - Plastic Love', 700, 260);
+
+      ctx.fillStyle = '#00f0c0';
+      ctx.font = '24px monospace';
+      ctx.fillText('TIME: 02:45 / 04:52', 700, 320);
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function downloadCanvas(canvas, filename) {
+      return new Promise(resolve => {
+        canvas.toBlob(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            resolve();
+          }, 300);
+        }, 'image/png');
+      });
+    }
+
+    document.getElementById('btn-generate').onclick = async () => {
+      // 192 그리기
+      const c192 = document.getElementById('c192');
+      drawCassette(c192.getContext('2d'), 192);
+      await downloadCanvas(c192, 'icon-192.png');
+
+      // 512 그리기
+      const c512 = document.getElementById('c512');
+      drawCassette(c512.getContext('2d'), 512);
+      await downloadCanvas(c512, 'icon-512.png');
+
+      // 스크린샷 그리기
+      const cScreen = document.getElementById('cScreen');
+      drawScreenshot(cScreen.getContext('2d'));
+      await downloadCanvas(cScreen, 'screenshot.png');
+
+      document.getElementById('status').style.display = 'block';
+    };
+  </script>
+</body>
+</html>

@@ -239,6 +239,27 @@ html, body {
   letter-spacing: 0.5px;
 }
 
+.btn-fullscreen-pill {
+  height: 22px;
+  padding: 0 8px;
+  background: #1e2430;
+  border: 1px solid #364155;
+  border-radius: 12px;
+  color: var(--vfd-cyan);
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.12s ease;
+}
+.btn-fullscreen-pill:active {
+  background: #004436;
+  transform: scale(0.96);
+}
+
 .led-power {
   width: 6px;
   height: 6px;
