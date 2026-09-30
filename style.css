@@ -251,7 +251,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-right: 18px; /* 종료 버튼을 화면 우측 모서리에서 안쪽으로 여유있게 배치 */
+  margin-right: 32px; /* 종료 버튼을 화면 우측 모서리 및 베젤 안쪽으로 여유있게 배치 */
 }
 
 .btn-top-pill {
@@ -315,7 +315,7 @@ html, body {
 }
 
 /* ==========================================================================
-   VIEW 1: DASHBOARD (완벽한 3분할 1:1:1 레이아웃 - 오른쪽 공간 100% 채움)
+   VIEW 1: DASHBOARD (균형 잡힌 2분할 레이아웃 - 좌측 테이프 / 우측 VFD & 인기차트 50위)
    ========================================================================== */
 .dashboard-view {
   width: 100%;
@@ -324,19 +324,23 @@ html, body {
   align-items: stretch;
 }
 
-.dash-col {
+/* 좌측: 대표 테이프 스테이지 & 퀵 액션 */
+.dash-col-stage-wrap {
   flex: 1;
   height: 100%;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
-.dash-col-stage {
+.dash-stage-box {
+  flex: 1;
   background: var(--tape-door-well);
   border-radius: 6px;
   border: 1px solid #20242e;
   box-shadow: inset 0 6px 20px #000;
+  display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -355,12 +359,20 @@ html, body {
   z-index: 3;
 }
 
-.dash-col-monitor {
+/* 우측: VFD 모니터(상단) & K-POP 인기차트(하단) */
+.dash-col-right-wrap {
+  flex: 1.15;
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
-.dash-col-chart {
-  /* 컬럼 3: K-POP 인기차트 */
+.vfd-panel-compact-dash {
+  flex: none;
+  height: 145px;
+  padding: 8px 10px;
 }
 
 /* VFD Information Panel (슬릭/모던 LCD) */
@@ -1053,55 +1065,172 @@ html, body {
 }
 
 /* ==========================================================================
-   POPUP ACTIVE MONITOR (유튜브 팝업창 재생 시 레트로 모니터 화면)
+   IN-APP FLOATING KARAOKE WINDOW (어플 내 새창 / 플로팅 영상 창)
    ========================================================================== */
-.popup-active-monitor {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, #111522 0%, #06070a 100%);
+.in-app-floating-window {
+  position: fixed;
+  top: 48px;
+  right: 14px;
+  width: min(440px, 92vw);
+  background: #0d0f16;
+  border: 2px solid #38bdf8;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.95), 0 0 15px rgba(56, 189, 248, 0.35);
+  z-index: 999;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.in-app-window-header {
+  height: 32px;
+  background: #161b26;
+  border-bottom: 1px solid #283248;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 14px;
-  text-align: center;
-  z-index: 10;
+  justify-content: space-between;
+  padding: 0 10px;
+  user-select: none;
+}
+
+.in-app-window-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--vfd-cyan);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 65%;
+}
+
+.in-app-window-actions {
+  display: flex;
+  align-items: center;
   gap: 6px;
 }
 
-.popup-active-badge {
+.window-action-btn {
+  height: 22px;
+  padding: 0 8px;
+  background: #232a3a;
+  border: 1px solid #3d4a66;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 9.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.window-action-btn:hover {
+  background: #333f57;
+  color: #fff;
+}
+.window-action-btn.btn-close {
+  background: #451317;
+  border-color: #7a1d24;
+  color: #fca5a5;
+}
+.window-action-btn.btn-close:hover {
+  background: #7f1d1d;
+  color: #fff;
+}
+
+.in-app-window-body {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  position: relative;
+}
+
+.in-app-window-body iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ==========================================================================
+   KARAOKE LYRICS & BUILT-IN MR MONITOR (실시간 대형 가사 & 피치 조절 모니터)
+   ========================================================================== */
+.karaoke-lyrics-monitor {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, #101524 0%, #06070a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  z-index: 10;
+  text-align: center;
+}
+
+.lyrics-track-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border-bottom: 1px solid #1a2233;
+  padding-bottom: 6px;
+}
+
+.lyrics-badge {
   font-family: var(--font-display);
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 800;
-  letter-spacing: 1.5px;
   color: var(--vfd-cyan);
   background: rgba(0, 240, 192, 0.12);
   border: 1px solid var(--vfd-cyan);
-  padding: 2px 8px;
-  border-radius: 4px;
-  animation: pulse-border 1.8s infinite alternate ease-in-out;
+  padding: 2px 6px;
+  border-radius: 3px;
 }
 
-@keyframes pulse-border {
-  from { box-shadow: 0 0 2px var(--vfd-cyan); }
-  to { box-shadow: 0 0 10px var(--vfd-cyan); }
+.lyrics-track-info {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e2e8f0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 60%;
 }
 
-.popup-track-title {
-  font-family: var(--font-ui);
-  font-size: 13px;
+.lyrics-current-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.lyrics-main-line {
+  font-size: 15px;
   font-weight: 800;
   color: #ffffff;
-  max-width: 90%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.4;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+  transition: all 0.25s ease;
 }
 
-.popup-track-artist {
-  font-size: 10px;
+.lyrics-sub-line {
+  font-size: 10.5px;
   color: var(--vfd-amber);
-  font-weight: 600;
+  line-height: 1.3;
+}
+
+.lyrics-guide-footer {
+  font-size: 9.5px;
+  color: #94a3b8;
+  border-top: 1px dashed #1e2638;
+  padding-top: 6px;
+  width: 100%;
 }
 
 .retro-spectrum-bars {

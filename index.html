@@ -63,17 +63,27 @@
       <!-- ==================== 중앙 메인 작업 영역 ==================== -->
       <main class="deck-workspace">
 
-        <!-- 1. [◁◁] 대시보드 뷰 (메인: 완벽한 3분할 1:1:1 레이아웃 - 오른쪽 공간 100% 활용) -->
+        <!-- 1. [◁◁] 대시보드 뷰 (메인: 균형 잡힌 2분할 레이아웃 - 좌측 테이프 / 우측 VFD & 인기차트) -->
         <section class="deck-view dashboard-view active" data-view-panel="dashboard">
-          <!-- 컬럼 1: 대표 카세트 테이프 스테이지 -->
-          <div class="dash-col dash-col-stage">
-            <div class="stage-badge">★ FEATURED CASSETTE</div>
-            <div id="dash-stage-container"></div>
+          <!-- 좌측: 대표 카세트 테이프 스테이지 & 퀵 액션 -->
+          <div class="dash-col dash-col-stage-wrap">
+            <div class="dash-stage-box">
+              <div class="stage-badge">★ FEATURED CASSETTE</div>
+              <div id="dash-stage-container"></div>
+            </div>
+            <div class="dash-quick-actions">
+              <button class="dash-action-btn" id="dash-btn-play-now">
+                <span>▶</span> 테이프 감상
+              </button>
+              <button class="dash-action-btn btn-rec-highlight" id="dash-btn-go-rec">
+                <span>●</span> 새 노래 녹음 (REC)
+              </button>
+            </div>
           </div>
 
-          <!-- 컬럼 2: VFD 하이파이 스테레오 모니터 & VU 미터 & 퀵 버튼 -->
-          <div class="dash-col dash-col-monitor">
-            <div class="vfd-panel">
+          <!-- 우측: VFD 하이파이 모니터 & 국내가요 인기차트 TOP 50 (빈 공간 없이 꽉 참) -->
+          <div class="dash-col dash-col-right-wrap">
+            <div class="vfd-panel vfd-panel-compact-dash">
               <div class="vfd-header">
                 <span class="vfd-badge">HI-FI STEREO MONITOR</span>
                 <span class="vfd-clock" id="vfd-clock-display">00:00:00</span>
@@ -114,18 +124,7 @@
               </div>
             </div>
 
-            <div class="dash-quick-actions">
-              <button class="dash-action-btn" id="dash-btn-play-now">
-                <span>▶</span> 테이프 감상
-              </button>
-              <button class="dash-action-btn btn-rec-highlight" id="dash-btn-go-rec">
-                <span>●</span> 새 노래 녹음 (REC)
-              </button>
-            </div>
-          </div>
-
-          <!-- 컬럼 3: 국내가요 인기차트 TOP 50 (오른쪽 공간 완벽 채움) -->
-          <div class="dash-col dash-col-chart">
+            <!-- 하단: 국내가요 인기차트 TOP 50 -->
             <div class="kpop-chart-container">
               <div class="chart-header">
                 <div class="chart-title">
@@ -149,23 +148,30 @@
           <div class="studio-monitor-section" id="studio-monitor-box">
             <!-- 검색 및 음성인식 버튼 (녹음 중에는 숨김) -->
             <div class="studio-search-bar" id="studio-search-controls">
-              <input type="text" id="studio-search-input" class="studio-input" placeholder="곡명이나 가수명을 입력하세요 (또는 음성 버튼)" />
+              <input type="text" id="studio-search-input" class="studio-input" placeholder="곡명이나 유튜브 링크를 입력하세요 (예: 그대에게)" />
               <button id="studio-search-btn" class="studio-btn-search">
                 <span>🔍</span> 검색
               </button>
               <button id="studio-voice-btn" class="studio-btn-search studio-btn-voice" title="음성 검색 (운전 중 말로 검색)">
                 <span>🎙️</span> 음성
               </button>
+              <input type="file" id="studio-local-file-input" accept="audio/*" style="display: none;" />
+              <button id="studio-btn-local-mr" class="studio-btn-search" title="내 스마트폰 MP3/MR 반주 파일 열기 (피치 조절 100% 지원)">
+                <span>📁</span> MP3
+              </button>
+              <button id="studio-btn-demo-mr" class="studio-btn-search" style="background: #0284c7; border-color: #38bdf8; color: #fff; font-weight: bold;" title="피치 조절 즉시 테스트용 내장 반주">
+                <span>🎹</span> 피치 테스트
+              </button>
             </div>
 
-            <!-- 인기 애창곡 퀵 선택 칩 (임베드 100% 보장 영상들) -->
+            <!-- 인기 애창곡 퀵 선택 칩 (검증된 실제 노래방 영상들) -->
             <div class="karaoke-quick-chips" id="karaoke-quick-chips">
               <span class="chip-label">추천곡:</span>
-              <button class="karaoke-chip" data-vid="W3q8Od5qJio" data-title="그대에게" data-artist="신해철">그대에게</button>
-              <button class="karaoke-chip" data-vid="r2K4J-ZgD2E" data-title="서른 즈음에" data-artist="김광석">서른 즈음에</button>
-              <button class="karaoke-chip" data-vid="0S39t-v8h_o" data-title="가시" data-artist="버즈">버즈 가시</button>
-              <button class="karaoke-chip" data-vid="bz_45pYx_aM" data-title="좋니" data-artist="윤종신">좋니</button>
-              <button class="karaoke-chip" data-vid="3bNITQR4Uso" data-title="Plastic Love" data-artist="Mariya">City Pop</button>
+              <button class="karaoke-chip" data-vid="QdzAMLBk-YE" data-title="그대에게" data-artist="무한궤도">그대에게</button>
+              <button class="karaoke-chip" data-vid="4dHsW45mrfk" data-title="서른 즈음에" data-artist="김광석">서른 즈음에</button>
+              <button class="karaoke-chip" data-vid="tOAn1IMGmK4" data-title="가시" data-artist="버즈">버즈 가시</button>
+              <button class="karaoke-chip" data-vid="s1qYp3b_Q1Y" data-title="좋니" data-artist="윤종신">좋니</button>
+              <button class="karaoke-chip" data-vid="9Gj47G2e1Jc" data-title="Plastic Love" data-artist="Mariya">City Pop</button>
             </div>
 
             <!-- 노래방 영상 모니터 화면 & 검색 결과 리스트 모달 오버레이 -->
@@ -173,36 +179,35 @@
               <div class="karaoke-placeholder" id="karaoke-placeholder">
                 <div class="placeholder-icon">🎤</div>
                 <div style="font-weight: 700; color: #cbd5e1; font-size: 13px; margin-bottom: 2px;">노래방 곡을 선택하세요</div>
-                <div style="font-size: 10px; color: #7b8599;">검색창에 곡명을 입력하거나 음성 버튼으로 말씀하시면 반주 리스트가 열립니다.</div>
-              </div>
-              <iframe id="karaoke-embed-frame" style="display: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-              <!-- 유튜브 팝업창 재생 모드 시 표시되는 레트로 VFD 모니터 -->
-              <div id="karaoke-popup-active-view" class="popup-active-monitor" style="display: none;">
-                <div class="popup-active-badge">🎬 YOUTUBE POP-UP ACTIVE</div>
-                <div class="popup-track-title" id="popup-monitor-title">곡명</div>
-                <div class="popup-track-artist" id="popup-monitor-artist">가수명</div>
-                <div class="retro-spectrum-bars">
-                  <span class="spec-bar sb1"></span><span class="spec-bar sb2"></span><span class="spec-bar sb3"></span>
-                  <span class="spec-bar sb4"></span><span class="spec-bar sb5"></span><span class="spec-bar sb6"></span>
-                  <span class="spec-bar sb7"></span><span class="spec-bar sb8"></span><span class="spec-bar sb9"></span>
-                  <span class="spec-bar sb10"></span><span class="spec-bar sb11"></span><span class="spec-bar sb12"></span>
-                </div>
-                <div class="popup-guide-text">
-                  유튜브 팝업창/앱에서 가사와 반주가 100% 재생 중입니다.<br>
-                  가사를 보시면서 우측의 <strong>[● 노래 시작! (REC)]</strong> 버튼을 눌러 녹음하세요.
-                </div>
-                <div class="popup-monitor-toolbar">
-                  <button id="btn-reopen-popup-direct" class="studio-sub-btn highlight">
-                    <span>🎬</span> 팝업창 다시 열기
-                  </button>
-                  <button id="btn-try-embed-again" class="studio-sub-btn">
-                    <span>📺</span> 화면 내 재생 시도
-                  </button>
-                </div>
+                <div style="font-size: 10px; color: #7b8599;">추천곡을 누르시거나 상단의 [🎹 피치 테스트]를 누르시면 화면에서 즉시 재생됩니다.</div>
               </div>
 
-              <!-- 검색 결과 리스트 선택 모달 (유튜브 노래방 버전 선택기) -->
+              <!-- 1. 유튜브 인앱 영상 플레이어 (모니터 가득 채움) -->
+              <iframe id="karaoke-embed-frame" style="display: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+              <!-- 2. 피치 조절 테스트 & 내장 MR 실시간 모니터 -->
+              <div id="karaoke-lyrics-monitor" class="karaoke-lyrics-monitor" style="display: none;">
+                <div class="lyrics-track-header">
+                  <span class="lyrics-badge" id="lyrics-badge">🎹 REAL PITCH SHIFT ENGINE</span>
+                  <span class="lyrics-track-info" id="lyrics-track-info">피치 조절 반주 재생 중</span>
+                  <button id="btn-close-lyrics-monitor" class="picker-close-btn" style="height: 20px; font-size: 9px;">✕ 닫기</button>
+                </div>
+                <div class="lyrics-current-box">
+                  <div class="lyrics-main-line" id="lyrics-main-line">♪ 피치 조절 반주 재생 중 ♪</div>
+                  <div class="lyrics-sub-line" id="lyrics-sub-line">우측의 [♭ / ♯] 버튼을 눌러보세요. 키(Pitch)가 실시간으로 바뀝니다!</div>
+                  <div class="retro-spectrum-bars" style="margin-top: 10px;">
+                    <span class="spec-bar sb1"></span><span class="spec-bar sb2"></span><span class="spec-bar sb3"></span>
+                    <span class="spec-bar sb4"></span><span class="spec-bar sb5"></span><span class="spec-bar sb6"></span>
+                    <span class="spec-bar sb7"></span><span class="spec-bar sb8"></span><span class="spec-bar sb9"></span>
+                    <span class="spec-bar sb10"></span><span class="spec-bar sb11"></span><span class="spec-bar sb12"></span>
+                  </div>
+                </div>
+                <div class="lyrics-guide-footer">
+                  마이크를 들고 우측의 <strong>[● 노래 시작! (REC)]</strong> 버튼을 누르면 반주+목소리가 테이프에 함께 녹음됩니다.
+                </div>
+              </div>
+
+              <!-- 3. 검색 결과 리스트 선택 모달 (유튜브 노래방 버전 선택기) -->
               <div id="karaoke-search-picker" class="karaoke-search-picker" style="display: none;">
                 <div class="picker-header">
                   <div class="picker-title">
@@ -210,22 +215,38 @@
                   </div>
                   <button id="picker-btn-close" class="picker-close-btn">✕ 닫기</button>
                 </div>
-                <div class="picker-subtitle">원하시는 버전을 선택하세요. [🎬 팝업 재생]을 누르시면 저작권 오류 없이 100% 재생됩니다:</div>
+                <div class="picker-subtitle">원하시는 버전을 선택하세요. 어플 화면 안에서 바로 재생됩니다:</div>
                 <div class="picker-list" id="picker-results-list"></div>
               </div>
             </div>
 
-            <!-- 하단 대체 컨트롤 바 (버전 변경 & 유튜브 외부 열기) -->
+            <!-- 하단 서브 툴바 (인앱 창 띄우기 & 피치 테스트) -->
             <div class="karaoke-sub-toolbar">
-              <button id="studio-btn-popup-yt" class="studio-sub-btn highlight" style="display: none;" title="동영상 오류 없이 100% 가사/반주 재생">
-                <span>🎬</span> 유튜브 팝업창으로 열기 (100% 재생)
+              <button id="studio-btn-toggle-float" class="studio-sub-btn highlight" style="display: none;" title="어플 안에서 자유롭게 떠다니는 인앱 창으로 분리">
+                <span>🪟</span> 인앱 창 띄우기
               </button>
               <button id="studio-btn-reopen-picker" class="studio-sub-btn" style="display: none;">
-                <span>🔄</span> 다른 노래방 버전 선택 (TJ/금영)
+                <span>🔄</span> 다른 노래/버전 선택
               </button>
-              <button id="studio-btn-external-yt" class="studio-sub-btn" style="display: none;" title="임베드가 차단된 경우 유튜브 앱/웹으로 가사 반주 열기">
-                <span>🌐</span> 유튜브로 열기
+              <button id="studio-btn-test-pitch" class="studio-sub-btn" title="피치 조절(-6~+6) 즉시 테스트">
+                <span>🎹</span> 피치 테스트 반주
               </button>
+            </div>
+          </div>
+
+          <!-- ==================== 어플 내 새창 (인앱 플로팅 노래방 창) ==================== -->
+          <div id="in-app-video-window" class="in-app-floating-window" style="display: none;">
+            <div class="in-app-window-header" id="in-app-window-header">
+              <div class="in-app-window-title">
+                <span>🪟</span> <span id="in-app-window-track-title">노래방 영상 창 (인앱)</span>
+              </div>
+              <div class="in-app-window-actions">
+                <button id="btn-dock-video" class="window-action-btn" title="화면 모니터 안으로 도킹 복귀">🖥️ 화면에 도킹</button>
+                <button id="btn-close-float-window" class="window-action-btn btn-close" title="창 닫기">✕</button>
+              </div>
+            </div>
+            <div class="in-app-window-body" id="in-app-window-body">
+              <!-- 플로팅 시 iframe이 이 안으로 렌더링 -->
             </div>
           </div>
 
