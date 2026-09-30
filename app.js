@@ -141,6 +141,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupRackControls();
   setupSettingsControls();
 
+  // 웹 브라우저 고유 동작 방어 (완전한 네이티브 앱 UX)
+  // 1. 길게 누르기 / 우클릭 컨텍스트 메뉴 방지
+  document.addEventListener('contextmenu', (e) => {
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+    }
+  });
+
+  // 2. iOS/Android 핀치 줌 및 더블 탭 확대 방지
+  document.addEventListener('gesturestart', (e) => e.preventDefault());
+  let lastTouchEnd = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+      }
+    }
+    lastTouchEnd = now;
+  }, false);
+
   // 첫 사용자 상호작용 시 오디오 컨텍스트 기동
   document.body.addEventListener('click', () => {
     audioEngine.initContext();

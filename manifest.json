@@ -1,0 +1,18 @@
+{
+  "name": "레트로 카세트 데크 커스텀 노래방",
+  "short_name": "TAPE-SING",
+  "description": "빈티지 하이파이 카세트 데크 개인용 노래방 및 오디오 플레이어 앱",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#060709",
+  "theme_color": "#141518",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231b1d22'/><rect x='15' y='25' width='70' height='45' rx='6' fill='%23e53935'/><circle cx='35' cy='47' r='10' fill='%23ffffff'/><circle cx='65' cy='47' r='10' fill='%23ffffff'/><circle cx='35' cy='47' r='4' fill='%231b1d22'/><circle cx='65' cy='47' r='4' fill='%231b1d22'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
