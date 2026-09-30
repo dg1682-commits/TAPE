@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RETRO CASSETTE DECK | 커스텀 노래방 앱</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="classic-silver">
+
+  <!-- ==================== 모바일 세로모드 회전 권장 오버레이 ==================== -->
+  <div class="rotate-notice" id="rotate-notice">
+    <div class="rotate-icon">📱 ➔ 🔄</div>
+    <div class="rotate-title">ROTATE TO LANDSCAPE</div>
+    <div class="rotate-sub">
+      본 카세트 데크는 16:9 가로 화면에 최적화되어 있습니다.<br>
+      스마트폰을 가로로 돌려주시면 빈티지 오디오 데크가 작동합니다.
+    </div>
+  </div>
+
+  <!-- ==================== 카세트 데크 메인 섀시 ==================== -->
+  <div class="deck-viewport">
+    <div class="deck-chassis">
+      
+      <!-- 정밀 십자 나사 4개 -->
+      <div class="chassis-screw screw-1"></div>
+      <div class="chassis-screw screw-2"></div>
+      <div class="chassis-screw screw-3"></div>
+      <div class="chassis-screw screw-4"></div>
+
+      <!-- 기기 상단 헤더 바 (브랜드 & 에어벤트 & LED) -->
+      <header class="deck-top-bar">
+        <div class="brand-section">
+          <span class="brand-logo">TAPE-SING</span>
+          <span class="brand-model">RS-M85 HI-FI STEREO</span>
+          <div class="deck-air-vents">
+            <div class="vent-slot"></div>
+            <div class="vent-slot"></div>
+            <div class="vent-slot"></div>
+            <div class="vent-slot"></div>
+            <div class="vent-slot"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div class="firebase-badge" title="Firebase 클라우드 실시간 동기화">
+            <div class="firebase-dot"></div>
+            <span>CLOUD DB: TAPE-SING</span>
+          </div>
+
+          <div class="power-indicator">
+            <div class="led-power"></div>
+            <span>POWER ON</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==================== 중앙 메인 작업 영역 ==================== -->
+      <main class="deck-workspace">
+
+        <!-- 1. [◁◁] 대시보드 뷰 (메인) -->
+        <section class="deck-view dashboard-view active" data-view-panel="dashboard">
+          <!-- 좌측: 회전하는 대형 카세트테이프 -->
+          <div class="dash-left-stage">
+            <div class="stage-badge">★ FEATURED CASSETTE</div>
+            <div id="dash-stage-container">
+              <!-- JS 동적 렌더링 -->
+            </div>
+          </div>
+
+          <!-- 우측: VFD 정보 패널 & 레벨 미터 -->
+          <div class="dash-right-info">
+            <div class="vfd-panel">
+              <div class="vfd-header">
+                <span class="vfd-badge">HI-FI STEREO MONITOR</span>
+                <span class="vfd-clock" id="vfd-clock-display">00:00:00</span>
+              </div>
+
+              <div class="vfd-body">
+                <div class="vfd-title-large" id="dash-tape-title">테이프 로딩 중...</div>
+                <div class="vfd-artist-sub" id="dash-tape-artist">ORIGINAL ARTIST</div>
+
+                <div class="vfd-meta-grid">
+                  <div>녹음 일자: <span class="vfd-meta-val" id="dash-tape-date">1988-12-24</span></div>
+                  <div>재생 횟수: <span class="vfd-meta-val" id="dash-tape-count">0 회</span></div>
+                  <div>소장 테이프: <span class="vfd-meta-val" id="dash-total-tapes">0 개</span></div>
+                  <div>클라우드: <span class="vfd-meta-val" style="color: var(--vfd-cyan);">FIREBASE ON</span></div>
+                </div>
+              </div>
+
+              <!-- 듀얼 스테레오 VU 미터 -->
+              <div class="vfd-vu-meter">
+                <div class="vu-channel" id="vu-ch-l">
+                  <span class="vu-ch-label">L</span>
+                  <div class="vu-bar-track">
+                    <div class="vu-segment"></div><div class="vu-segment"></div><div class="vu-segment"></div>
+                    <div class="vu-segment"></div><div class="vu-segment"></div><div class="vu-segment"></div>
+                    <div class="vu-segment"></div><div class="vu-segment"></div><div class="vu-segment"></div>
+                    <div class="vu-segment"></div><div class="vu-segment"></div><div class="vu-segment"></div>
+                  </div>
+                </div>
+                <div class="vu-channel" id="vu-ch-r">
+                  <span class="vu-ch-label">R</span>
+                  <div class="vu-bar-track">
+                    <div class="vu-segment"></div><div class="vu-segment"></div><div class="vu-segment"></div>
+                    <div class="vu-segment"></div><div class="vu-segment"></div><div class="vu-segment"></div>
+                    <div class="vu-segment"></div><div class="vu-segment"></div><div class="vu-segment"></div>
+                    <div class="vu-segment"></div><div class="vu-segment"></div><div class="vu-segment"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 빠른 액션 버튼 -->
+            <div class="dash-quick-actions">
+              <button class="dash-action-btn" id="dash-btn-play-now">
+                <span>▶</span> 이 테이프 바로 감상
+              </button>
+              <button class="dash-action-btn btn-rec-highlight" id="dash-btn-go-rec">
+                <span>●</span> 새 노래 녹음하기 (REC)
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. [●] 스튜디오 뷰 (노래/녹음) -->
+        <section class="deck-view studio-view" data-view-panel="studio">
+          <!-- 좌측: 유튜브 노래방 모니터 화면 -->
+          <div class="studio-monitor-section">
+            <div class="studio-search-bar">
+              <input type="text" id="studio-search-input" class="studio-input" placeholder="노래 제목 또는 가수명 입력 (예: 사랑했지만, 그대에게)" />
+              <button id="studio-search-btn" class="studio-btn-search">
+                <span>🔍</span> 노래방 검색
+              </button>
+            </div>
+
+            <div class="studio-screen-frame">
+              <div class="karaoke-placeholder" id="karaoke-placeholder">
+                <div class="placeholder-icon">🎤</div>
+                <div style="font-weight: 700; color: #cbd5e1; margin-bottom: 4px;">노래방 검색어로 곡을 검색하세요</div>
+                <div style="font-size: 11px;">검색어 뒤에 '+ 노래방'이 자동 결합되어 반주 영상이 모니터에 로드됩니다.</div>
+              </div>
+              <iframe id="karaoke-embed-frame" style="display: none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+          </div>
+
+          <!-- 우측: 컨트롤 데크 (키 조절, 에코, 마이크, 대형 레드 녹음 버튼) -->
+          <div class="studio-ctrl-section">
+            <!-- 키(피치) 컨트롤 -->
+            <div class="control-deck-group">
+              <div class="group-title">
+                <span>KEY PITCH SHIFT</span>
+                <span style="font-size: 10px; color: #8892b0;">WEB AUDIO API</span>
+              </div>
+              <div class="pitch-control-row">
+                <button class="pitch-btn" id="pitch-btn-down">♭</button>
+                <div class="pitch-display">
+                  <span class="pitch-semitone" id="studio-pitch-val">0</span>
+                  <span class="pitch-label">KEY OFFSET</span>
+                </div>
+                <button class="pitch-btn" id="pitch-btn-up">♯</button>
+              </div>
+            </div>
+
+            <!-- 마이크 & 에코 슬라이더 -->
+            <div class="control-deck-group">
+              <div class="group-title">MIC & KARAOKE ECHO</div>
+              <div class="slider-row">
+                <label>MIC VOL</label>
+                <input type="range" id="studio-slider-mic" class="studio-range" min="0" max="2" step="0.05" value="1.0" />
+              </div>
+              <div class="slider-row">
+                <label>ECHO LEVEL</label>
+                <input type="range" id="studio-slider-echo" class="studio-range" min="0" max="1" step="0.05" value="0.4" />
+              </div>
+            </div>
+
+            <!-- 대형 레드 발광 녹음 버튼 -->
+            <div class="studio-launch-bar">
+              <button class="btn-big-rec" id="studio-btn-launch">
+                <span>●</span> 노래 시작! (REC)
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. [▶] 플레이어 뷰 (오디오 재생) -->
+        <section class="deck-view player-view" data-view-panel="player">
+          <!-- 좌측: 카세트 도어 및 테이프 데크 -->
+          <div class="player-bay" id="player-tape-bay">
+            <!-- JS 동적 카세트 장착 -->
+          </div>
+
+          <!-- 우측: 트랙 정보 & 슬라이더 & 트랜스포트 버튼 -->
+          <div class="player-controls-panel">
+            <div class="vfd-panel" style="flex: none; height: 110px;">
+              <div class="vfd-header">
+                <span class="vfd-badge">TAPE PLAYBACK HEAD</span>
+                <span class="vfd-badge" style="color: #39ff14;">STEREO HIGH FIDELITY</span>
+              </div>
+              <div class="vfd-body">
+                <div class="vfd-title-large" id="player-track-title">선택된 테이프 없음</div>
+                <div class="vfd-artist-sub" id="player-track-artist">가수 미상</div>
+              </div>
+            </div>
+
+            <!-- 카운터 박스 -->
+            <div class="player-counter-box">
+              <div>
+                <div class="counter-label">TAPE COUNTER</div>
+                <div class="counter-digits" id="player-counter-digits">0000</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="counter-label">STATUS</div>
+                <div style="font-family: var(--font-display); font-size: 12px; color: var(--vfd-amber);">STANDBY</div>
+              </div>
+            </div>
+
+            <!-- 프로그레스 바 -->
+            <div class="player-progress-wrap">
+              <div class="time-row">
+                <span id="player-time-current">00:00</span>
+                <span id="player-time-duration">00:00</span>
+              </div>
+              <input type="range" id="player-seek-slider" class="tape-seek-slider" min="0" max="100" value="0" />
+            </div>
+
+            <!-- 트랜스포트 물리 버튼 뱅크 -->
+            <div class="transport-button-bank">
+              <button class="transport-btn" id="transport-btn-rew" title="10초 되감기">◀◀</button>
+              <button class="transport-btn" id="transport-btn-play" title="재생">▶</button>
+              <button class="transport-btn" id="transport-btn-pause" title="일시정지">❚❚</button>
+              <button class="transport-btn" id="transport-btn-stop" title="정지">■</button>
+              <button class="transport-btn" id="transport-btn-ff" title="10초 빨리감기">▶▶</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. [l l] 목록 뷰 (테이프 랙 & CSS Scroll Snap) -->
+        <section class="deck-view rack-view" data-view-panel="rack">
+          <!-- 좌측 사이드바 필터 -->
+          <div class="rack-sidebar">
+            <button class="rack-filter-tab active" data-filter="all">📁 전체 테이프</button>
+            <button class="rack-filter-tab" data-filter="favorite">★ 즐겨찾기</button>
+            <button class="rack-filter-tab" data-filter="가요">🇰🇷 가요</button>
+            <button class="rack-filter-tab" data-filter="POP">🌐 POP</button>
+            <button class="rack-filter-tab" data-filter="발라드">☕ 발라드</button>
+            <button class="rack-filter-tab" data-filter="애창곡">🎤 애창곡</button>
+          </div>
+
+          <!-- 우측 자석식 세로 스크롤 테이프 랙 -->
+          <div class="rack-shelf-container" id="rack-shelf-container">
+            <!-- JS 동적 생성: scroll-snap-type: y mandatory 슬롯들 -->
+          </div>
+        </section>
+
+        <!-- 5. [▷▷] 설정 뷰 (시스템 설정) -->
+        <section class="deck-view settings-view" data-view-panel="settings">
+          <div class="settings-box">
+            <div style="font-family: var(--font-display); font-size: 15px; color: var(--vfd-amber); margin-bottom: 6px;">
+              SYSTEM CONFIGURATION
+            </div>
+
+            <div class="setting-item">
+              <div>
+                <div class="setting-title">데크 섀시 테마</div>
+                <div class="setting-desc">카세트 데크 외형 금속 패널 질감을 변경합니다.</div>
+              </div>
+              <select id="setting-theme-select" class="setting-select">
+                <option value="classic-silver">클래식 실버 메탈 (Classic Silver)</option>
+                <option value="matte-black">매트 블랙 (Matte Black)</option>
+                <option value="champagne-gold">샴페인 골드 (Champagne Gold)</option>
+              </select>
+            </div>
+
+            <div class="setting-item">
+              <div>
+                <div class="setting-title">아날로그 테이프 모터 소음 (Hiss)</div>
+                <div class="setting-desc">재생 시 빈티지 테이프 특유의 은은한 아날로그 히스 노이즈를 재생합니다.</div>
+              </div>
+              <input type="checkbox" id="setting-hiss-toggle" style="width: 20px; height: 20px; cursor: pointer;" />
+            </div>
+
+            <div class="setting-item">
+              <div>
+                <div class="setting-title">파이어베이스 스토리지 상태</div>
+                <div class="setting-desc">클라우드 버킷: tape-sing.firebasestorage.app</div>
+              </div>
+              <span style="color: var(--vfd-cyan); font-weight: 700; font-size: 12px;">ONLINE</span>
+            </div>
+
+            <!-- 업데이트 내역 확인 버튼 (모달 팝업 호출) -->
+            <button class="btn-open-changelog" id="btn-view-changelog">
+              <span>📦</span> 버전 및 업데이트 내역 확인 (Changelog)
+            </button>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- ==================== GNB 물리 버튼 네비게이션 ==================== -->
+      <nav class="deck-gnb-bank">
+        <!-- [◁◁] 메인 -->
+        <button class="gnb-mech-key is-engaged" data-view="dashboard" title="대시보드 메인">
+          <span class="key-symbol">◁◁</span>
+          <span class="key-label">MAIN</span>
+        </button>
+
+        <!-- [●] 노래/녹음 (레드 컬러 포인트 버튼) -->
+        <button class="gnb-mech-key key-rec-point" data-view="studio" title="스튜디오 노래 및 녹음">
+          <span class="key-symbol">●</span>
+          <span class="key-label">REC / SING</span>
+        </button>
+
+        <!-- [▶] 재생 (오디오 플레이어) -->
+        <button class="gnb-mech-key" data-view="player" title="오디오 플레이어">
+          <span class="key-symbol">▶</span>
+          <span class="key-label">PLAYER</span>
+        </button>
+
+        <!-- [l l] 목록 (테이프 랙) -->
+        <button class="gnb-mech-key" data-view="rack" title="재생목록 및 테이프 랙">
+          <span class="key-symbol">❚❚</span>
+          <span class="key-label">RACK</span>
+        </button>
+
+        <!-- [▷▷] 설정 -->
+        <button class="gnb-mech-key" data-view="settings" title="시스템 설정">
+          <span class="key-symbol">▷▷</span>
+          <span class="key-label">SETUP</span>
+        </button>
+      </nav>
+
+    </div>
+  </div>
+
+  <!-- ==================== 전역 레트로 모달 팝업 컨테이너 ==================== -->
+  <div class="retro-modal-backdrop" id="retro-modal-backdrop">
+    <div class="retro-modal-frame">
+      <div class="retro-modal-header">
+        <div class="modal-header-title" id="modal-title">SYSTEM ALERT</div>
+        <button class="modal-btn-close" id="modal-btn-close">✕</button>
+      </div>
+      <div class="retro-modal-body" id="modal-body">
+        <!-- 모달 본문 내용 동적 렌더링 -->
+      </div>
+      <div class="retro-modal-footer" id="modal-footer">
+        <!-- 액션 버튼들 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 메인 스크립트 모듈 -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

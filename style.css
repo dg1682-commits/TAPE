@@ -1,0 +1,1647 @@
+/* ==========================================================================
+   🎵 RETRO CASSETTE DECK KARAOKE STUDIO - MASTER STYLESHEET
+   100% Pure CSS Skewmorphism & Vintage Hi-Fi Deck Interface
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=VT323&family=Orbitron:wght@500;700;900&family=Noto+Sans+KR:wght@400;600;700&display=swap');
+
+:root {
+  /* Deck Chassis Colors (Classic Silver Metal) */
+  --chassis-bg: linear-gradient(180deg, #303338 0%, #1e2024 12%, #141518 85%, #0d0e10 100%);
+  --metal-faceplate: linear-gradient(180deg, #d8dbe2 0%, #bdc3cf 25%, #9fa6b5 70%, #7e8594 100%);
+  --metal-highlight: #f0f3fa;
+  --metal-shadow: #3b3f49;
+  --metal-border: #626775;
+  
+  /* Vintage Lighting & Display */
+  --vfd-bg: #080d0d;
+  --vfd-cyan: #00ffcc;
+  --vfd-cyan-dim: #005544;
+  --vfd-amber: #ffaa00;
+  --vfd-red: #ff3344;
+  --vfd-glow: 0 0 10px rgba(0, 255, 204, 0.6), 0 0 20px rgba(0, 255, 204, 0.3);
+  --vfd-amber-glow: 0 0 8px rgba(255, 170, 0, 0.6);
+  --tape-door-well: #0c0d10;
+  --tape-ambient-light: rgba(255, 180, 80, 0.15);
+
+  /* Fonts */
+  --font-display: 'Orbitron', monospace;
+  --font-vfd: 'VT323', monospace;
+  --font-ui: 'Chakra Petch', 'Noto Sans KR', sans-serif;
+  --font-body: 'Noto Sans KR', sans-serif;
+}
+
+/* Theme variations */
+body[data-theme="matte-black"] {
+  --metal-faceplate: linear-gradient(180deg, #2b2c31 0%, #1c1d22 30%, #131418 80%, #0a0b0d 100%);
+  --metal-highlight: #464852;
+  --metal-shadow: #050608;
+  --metal-border: #353842;
+  --vfd-cyan: #ffb703;
+  --vfd-cyan-dim: #5c4200;
+  --vfd-glow: 0 0 10px rgba(255, 183, 3, 0.7);
+}
+
+body[data-theme="champagne-gold"] {
+  --metal-faceplate: linear-gradient(180deg, #e8dfcf 0%, #d8caa7 25%, #baa97f 70%, #998860 100%);
+  --metal-highlight: #fcf8ee;
+  --metal-shadow: #5c5035;
+  --metal-border: #80724e;
+  --vfd-cyan: #39ff14;
+  --vfd-cyan-dim: #114e04;
+  --vfd-glow: 0 0 10px rgba(57, 255, 20, 0.6);
+}
+
+/* Base Reset & Lock */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #060709;
+  font-family: var(--font-ui);
+  color: #d1d5db;
+}
+
+/* ==========================================================================
+   PORTRAIT ROTATE NOTICE OVERLAY (가로 모드 유도 오버레이)
+   ========================================================================== */
+.rotate-notice {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle, #1a1c23 0%, #090a0d 100%);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.rotate-icon {
+  font-size: 56px;
+  animation: phone-rotate 2.5s infinite ease-in-out;
+  margin-bottom: 20px;
+}
+
+@keyframes phone-rotate {
+  0%, 20% { transform: rotate(0deg); }
+  50%, 70% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.rotate-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--vfd-cyan);
+  text-shadow: var(--vfd-glow);
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.rotate-sub {
+  font-size: 14px;
+  color: #8b92a5;
+  line-height: 1.5;
+}
+
+@media screen and (orientation: portrait) and (max-width: 768px) {
+  .rotate-notice {
+    display: flex;
+  }
+}
+
+/* ==========================================================================
+   CASSETTE DECK MAIN CHASSIS (전체 기기 외형)
+   ========================================================================== */
+.deck-viewport {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, #1c1e24 0%, #08090b 100%);
+  padding: 10px;
+}
+
+.deck-chassis {
+  width: 100%;
+  max-width: 1200px;
+  height: 96vh;
+  max-height: 680px;
+  background: var(--metal-faceplate);
+  border-radius: 12px;
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.95),
+    inset 0 1px 2px var(--metal-highlight),
+    inset 0 -2px 4px var(--metal-shadow),
+    0 0 0 3px #18191e;
+  border: 1px solid var(--metal-border);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Brushed Metal Hairline Texture */
+.deck-chassis::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Four Corner Hex/Cross Screws */
+.chassis-screw {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #888d9a 50%, #444750 100%);
+  box-shadow: inset 0 1px 1px #fff, 0 1px 2px rgba(0,0,0,0.8);
+  border: 1px solid #33363e;
+  z-index: 10;
+}
+.screw-1 { top: 8px; left: 8px; transform: rotate(32deg); }
+.screw-2 { top: 8px; right: 8px; transform: rotate(115deg); }
+.screw-3 { bottom: 8px; left: 8px; transform: rotate(78deg); }
+.screw-4 { bottom: 8px; right: 8px; transform: rotate(145deg); }
+
+.chassis-screw::after {
+  content: '+';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-family: monospace;
+  color: #27282e;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+}
+
+/* ==========================================================================
+   DECK TOP BAR (헤더 & 브랜드 로고 & 에어 벤트)
+   ========================================================================== */
+.deck-top-bar {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px 0 28px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
+  z-index: 5;
+  background: rgba(0,0,0,0.06);
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #1f2228;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+}
+
+.brand-model {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #4b5161;
+  background: rgba(0,0,0,0.08);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.deck-air-vents {
+  display: flex;
+  gap: 5px;
+}
+.vent-slot {
+  width: 4px;
+  height: 18px;
+  background: #18191e;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 2px #000, 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.power-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #373b47;
+}
+
+.led-power {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #39ff14;
+  box-shadow: 0 0 8px #39ff14, inset 0 1px 1px #fff;
+}
+
+.firebase-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  background: #1e222b;
+  color: #00ffcc;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid #323947;
+  letter-spacing: 0.5px;
+}
+.firebase-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00ffcc;
+  box-shadow: 0 0 6px #00ffcc;
+}
+
+/* ==========================================================================
+   DECK MAIN WORKSPACE (가운데 메인 작업 영역)
+   ========================================================================== */
+.deck-workspace {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+  display: flex;
+  padding: 12px 20px;
+  gap: 16px;
+}
+
+/* Dynamic Views (Dashboard, Studio, Player, Rack) */
+.deck-view {
+  width: 100%;
+  height: 100%;
+  display: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.deck-view.active {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   VIEW 1: DASHBOARD (대시보드)
+   ========================================================================== */
+.dashboard-view {
+  gap: 20px;
+  align-items: center;
+}
+
+.dash-left-stage {
+  flex: 1.1;
+  height: 100%;
+  background: var(--tape-door-well);
+  border-radius: 10px;
+  border: 2px solid #282b34;
+  box-shadow: inset 0 10px 30px #000, 0 1px 0 rgba(255,255,255,0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 16px;
+  overflow: hidden;
+}
+
+/* Ambient Backlight inside Cassette Bay */
+.dash-left-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(255, 170, 50, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.stage-badge {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  font-size: 11px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  color: var(--vfd-amber);
+  text-shadow: var(--vfd-amber-glow);
+  letter-spacing: 1px;
+}
+
+.dash-right-info {
+  flex: 0.9;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* VFD LED Information Panel */
+.vfd-panel {
+  flex: 1;
+  background: var(--vfd-bg);
+  border-radius: 8px;
+  border: 2px solid #1f2a2e;
+  box-shadow: inset 0 4px 16px #000, 0 1px 0 rgba(255,255,255,0.3);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glass & Scanlines on VFD Screen */
+.vfd-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 204, 0.03) 0px,
+    rgba(0, 255, 204, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+}
+
+.vfd-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed rgba(0, 255, 204, 0.25);
+  padding-bottom: 6px;
+}
+
+.vfd-badge {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--vfd-amber);
+  text-shadow: var(--vfd-amber-glow);
+}
+
+.vfd-clock {
+  font-family: var(--font-vfd);
+  font-size: 18px;
+  color: var(--vfd-cyan);
+  text-shadow: var(--vfd-glow);
+}
+
+.vfd-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.vfd-title-large {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255,255,255,0.8), var(--vfd-glow);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vfd-artist-sub {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--vfd-cyan);
+  letter-spacing: 1px;
+}
+
+.vfd-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: #7b8f95;
+}
+
+.vfd-meta-val {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Dual Stereo VU Level Meter */
+.vfd-vu-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(0,0,0,0.4);
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #162424;
+}
+
+.vu-channel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vu-ch-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--vfd-cyan);
+  width: 12px;
+}
+
+.vu-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #111b1b;
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex;
+  padding: 1px;
+  gap: 2px;
+}
+
+.vu-segment {
+  flex: 1;
+  background: #162626;
+  border-radius: 1px;
+  transition: background-color 0.05s ease;
+}
+
+.vu-segment.lit-green {
+  background: #00ffcc;
+  box-shadow: 0 0 5px #00ffcc;
+}
+
+.vu-segment.lit-amber {
+  background: #ffaa00;
+  box-shadow: 0 0 5px #ffaa00;
+}
+
+.vu-segment.lit-red {
+  background: #ff3344;
+  box-shadow: 0 0 6px #ff3344;
+}
+
+.dash-quick-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.dash-action-btn {
+  flex: 1;
+  height: 42px;
+  background: linear-gradient(180deg, #373b45 0%, #22252d 100%);
+  border: 1px solid #4a505e;
+  border-radius: 6px;
+  color: #e5e7eb;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+  transition: all 0.12s ease;
+}
+
+.dash-action-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  background: #1a1c22;
+}
+
+.dash-action-btn.btn-rec-highlight {
+  background: linear-gradient(180deg, #d32f2f 0%, #8b0000 100%);
+  border-color: #ff5252;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}
+
+/* ==========================================================================
+   VIEW 2: STUDIO / RECORDING (노래/녹음 모드)
+   ========================================================================== */
+.studio-view {
+  gap: 16px;
+}
+
+.studio-monitor-section {
+  flex: 1.15;
+  height: 100%;
+  background: #0d0f14;
+  border-radius: 8px;
+  border: 2px solid #232732;
+  box-shadow: inset 0 4px 20px #000;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+  position: relative;
+}
+
+.studio-search-bar {
+  display: flex;
+  gap: 8px;
+}
+
+.studio-input {
+  flex: 1;
+  height: 36px;
+  background: #141720;
+  border: 1px solid #333a4c;
+  border-radius: 6px;
+  padding: 0 12px;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+}
+.studio-input:focus {
+  border-color: var(--vfd-cyan);
+  box-shadow: 0 0 8px rgba(0,255,204,0.3);
+}
+
+.studio-btn-search {
+  height: 36px;
+  padding: 0 16px;
+  background: linear-gradient(180deg, #3c4354 0%, #262b36 100%);
+  border: 1px solid #555f75;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-screen-frame {
+  flex: 1;
+  background: #000;
+  border-radius: 6px;
+  border: 1px solid #1c212c;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.studio-screen-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.karaoke-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #5d677d;
+  padding: 20px;
+}
+.placeholder-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+  color: #8b0000;
+}
+
+.studio-ctrl-section {
+  flex: 0.85;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.control-deck-group {
+  background: linear-gradient(180deg, #242730 0%, #1a1c22 100%);
+  border-radius: 8px;
+  border: 1px solid #373b47;
+  padding: 12px 14px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 3px 6px rgba(0,0,0,0.4);
+}
+
+.group-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--vfd-amber);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Key (Pitch) Control Wheel/Buttons */
+.pitch-control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111317;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #282c38;
+}
+
+.pitch-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #444a59 0%, #272a33 100%);
+  border: 1px solid #575e70;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.pitch-btn:active {
+  transform: translateY(2px);
+  background: #1d1f26;
+}
+
+.pitch-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pitch-semitone {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--vfd-cyan);
+  text-shadow: var(--vfd-glow);
+}
+.pitch-label {
+  font-size: 10px;
+  color: #7b8599;
+}
+
+/* Studio Sliders (Mic & Echo) */
+.slider-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.slider-row label {
+  font-size: 12px;
+  color: #9aa2b5;
+  width: 70px;
+}
+.studio-range {
+  flex: 1;
+  accent-color: var(--vfd-cyan);
+  cursor: pointer;
+}
+
+/* BIG RED RECORDING LAUNCH BUTTON */
+.studio-launch-bar {
+  margin-top: auto;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-big-rec {
+  flex: 1;
+  height: 52px;
+  background: linear-gradient(180deg, #ff3b30 0%, #b30000 60%, #800000 100%);
+  border: 2px solid #ff6961;
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 6px 14px rgba(255, 59, 48, 0.4), inset 0 2px 2px rgba(255,255,255,0.4);
+  transition: all 0.15s ease;
+}
+
+.btn-big-rec:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 6px rgba(255, 59, 48, 0.6);
+}
+
+.btn-big-rec.recording-active {
+  background: linear-gradient(180deg, #ff1744 0%, #d50000 100%);
+  animation: pulse-red-glow 1s infinite alternate;
+}
+
+@keyframes pulse-red-glow {
+  0% { box-shadow: 0 0 10px rgba(255, 23, 68, 0.6); }
+  100% { box-shadow: 0 0 25px rgba(255, 23, 68, 0.95); }
+}
+
+/* ==========================================================================
+   VIEW 3: PLAYER (오디오 플레이어)
+   ========================================================================== */
+.player-view {
+  gap: 20px;
+}
+
+.player-bay {
+  flex: 1.1;
+  height: 100%;
+  background: var(--tape-door-well);
+  border-radius: 10px;
+  border: 2px solid #282b34;
+  box-shadow: inset 0 12px 36px #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.player-bay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 180, 80, 0.12) 0%, transparent 75%);
+  pointer-events: none;
+}
+
+.player-controls-panel {
+  flex: 0.9;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Tape Counter & LED Status */
+.player-counter-box {
+  background: #0a0d10;
+  border-radius: 6px;
+  border: 1px solid #1a2228;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.counter-digits {
+  font-family: var(--font-vfd);
+  font-size: 32px;
+  color: var(--vfd-cyan);
+  text-shadow: var(--vfd-glow);
+  letter-spacing: 3px;
+}
+
+.counter-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: #64748b;
+  letter-spacing: 1px;
+}
+
+/* Player Progress Slider */
+.player-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: #8b95a8;
+}
+
+.tape-seek-slider {
+  width: 100%;
+  accent-color: var(--vfd-amber);
+  cursor: pointer;
+  height: 8px;
+}
+
+/* Mechanical Transport Buttons (Rewind, Play, Pause, Fast-forward, Stop) */
+.transport-button-bank {
+  display: flex;
+  gap: 8px;
+  background: #181a20;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #2e323e;
+}
+
+.transport-btn {
+  flex: 1;
+  height: 48px;
+  background: linear-gradient(180deg, #3d4351 0%, #20232a 100%);
+  border: 1px solid #575e70;
+  border-radius: 5px;
+  color: #e2e8f0;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
+.transport-btn:active, .transport-btn.btn-engaged {
+  transform: translateY(3px);
+  background: #15171c;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.7), inset 0 2px 4px #000;
+  color: var(--vfd-cyan);
+  border-color: var(--vfd-cyan-dim);
+}
+
+.transport-btn.btn-play-engaged {
+  color: #39ff14;
+  border-color: #114e04;
+}
+
+/* ==========================================================================
+   VIEW 4: RACK / LIST (테이프 랙 & CSS Scroll Snap)
+   ========================================================================== */
+.rack-view {
+  gap: 16px;
+}
+
+.rack-sidebar {
+  flex: 0.35;
+  height: 100%;
+  background: #171920;
+  border-radius: 8px;
+  border: 1px solid #2a2e3a;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rack-filter-tab {
+  width: 100%;
+  height: 36px;
+  background: #20242e;
+  border: 1px solid #333947;
+  border-radius: 6px;
+  color: #a0aec0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  transition: all 0.15s ease;
+}
+
+.rack-filter-tab.active {
+  background: var(--vfd-cyan-dim);
+  border-color: var(--vfd-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(0,255,204,0.3);
+}
+
+.rack-shelf-container {
+  flex: 0.65;
+  height: 100%;
+  background: #0c0d12;
+  border-radius: 8px;
+  border: 2px solid #222632;
+  box-shadow: inset 0 8px 30px #000;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  padding: 40px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  position: relative;
+}
+
+/* Scroll Snap Item */
+.rack-snap-slot {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.25s ease;
+  cursor: pointer;
+  filter: brightness(0.75);
+}
+
+/* Center Focused Tape in Rack */
+.rack-snap-slot.slot-focused {
+  transform: scale(1.06);
+  filter: brightness(1.05);
+}
+
+/* Custom Scrollbar for Vintage Rack */
+.rack-shelf-container::-webkit-scrollbar {
+  width: 6px;
+}
+.rack-shelf-container::-webkit-scrollbar-thumb {
+  background: #373b47;
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   VIEW 5: SETTINGS (설정 뷰 - 메인 패널 내 배치)
+   ========================================================================== */
+.settings-view {
+  display: flex;
+  gap: 20px;
+}
+
+.settings-box {
+  flex: 1;
+  background: #171920;
+  border-radius: 8px;
+  border: 1px solid #2a2e3a;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #232733;
+  padding-bottom: 12px;
+}
+
+.setting-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.setting-desc {
+  font-size: 11px;
+  color: #7b8599;
+}
+
+.setting-select {
+  height: 34px;
+  background: #232733;
+  border: 1px solid #3c4254;
+  border-radius: 5px;
+  color: #fff;
+  padding: 0 10px;
+  font-family: var(--font-ui);
+}
+
+.btn-open-changelog {
+  height: 42px;
+  background: linear-gradient(180deg, #373b45 0%, #20232a 100%);
+  border: 1px solid #525a6b;
+  border-radius: 6px;
+  color: var(--vfd-cyan);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   GNB CASSETTE PHYSICAL BUTTON NAVIGATION (화면 하단 물리 버튼 데크)
+   ========================================================================== */
+.deck-gnb-bank {
+  height: 78px;
+  background: linear-gradient(180deg, #2a2d34 0%, #17181c 40%, #0d0e11 100%);
+  border-top: 3px solid #141518;
+  box-shadow: 
+    inset 0 2px 2px rgba(255,255,255,0.18),
+    0 -4px 10px rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  gap: 14px;
+  z-index: 10;
+}
+
+/* Skewmorphic Piano Key Mechanical Button */
+.gnb-mech-key {
+  flex: 1;
+  max-width: 170px;
+  height: 54px;
+  position: relative;
+  background: linear-gradient(180deg, #d2d6df 0%, #a9afbd 40%, #7b8291 90%, #5d6370 100%);
+  border: 1px solid #4a4e58;
+  border-radius: 6px 6px 4px 4px;
+  box-shadow: 
+    0 6px 0 #282a30,
+    0 8px 12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 1px #ffffff,
+    inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.08s ease;
+  outline: none;
+}
+
+/* Mechanical Key Groove Texture */
+.gnb-mech-key::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 2px;
+}
+
+.key-symbol {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 900;
+  color: #1b1d22;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+  line-height: 1;
+}
+
+.key-label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  color: #373c47;
+  letter-spacing: 1px;
+  margin-top: 3px;
+}
+
+/* Button Active / Engaged Pressed State */
+.gnb-mech-key:active, .gnb-mech-key.is-engaged {
+  transform: translateY(5px);
+  box-shadow: 
+    0 1px 0 #282a30,
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    inset 0 2px 4px rgba(0,0,0,0.5);
+  background: linear-gradient(180deg, #9ca2af 0%, #7d8492 40%, #585d69 100%);
+}
+
+.gnb-mech-key.is-engaged .key-symbol {
+  color: var(--vfd-cyan);
+  text-shadow: 0 0 6px rgba(0, 255, 204, 0.8);
+}
+
+/* SPECIAL RED RECORDING BUTTON */
+.gnb-mech-key.key-rec-point {
+  background: linear-gradient(180deg, #e53935 0%, #c62828 40%, #8e0000 90%, #5f0000 100%);
+  border-color: #7f0000;
+  box-shadow: 
+    0 6px 0 #420a0a,
+    0 8px 14px rgba(229, 57, 53, 0.5),
+    inset 0 1px 1px #ff8a80,
+    inset 0 -2px 3px rgba(0, 0, 0, 0.4);
+}
+.gnb-mech-key.key-rec-point .key-symbol {
+  color: #ffffff;
+  text-shadow: 0 1px 2px #000;
+}
+.gnb-mech-key.key-rec-point .key-label {
+  color: #ffcdd2;
+}
+
+.gnb-mech-key.key-rec-point:active, .gnb-mech-key.key-rec-point.is-engaged {
+  transform: translateY(5px);
+  box-shadow: 
+    0 1px 0 #420a0a,
+    0 2px 6px rgba(255, 0, 0, 0.7),
+    inset 0 2px 4px #000;
+  background: linear-gradient(180deg, #b71c1c 0%, #7f0000 100%);
+}
+
+/* ==========================================================================
+   PURE CSS CASSETTE TAPE (특수 컴포넌트: 100% 순수 CSS 카세트테이프)
+   ========================================================================== */
+.cassette-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+}
+
+/* Sizes */
+.cassette-wrapper.size-large {
+  width: 480px;
+  height: 310px;
+}
+.cassette-wrapper.size-medium {
+  width: 380px;
+  height: 245px;
+}
+.cassette-wrapper.size-compact {
+  width: 290px;
+  height: 188px;
+}
+
+/* Main Plastic Shell */
+.cassette-body {
+  width: 100%;
+  height: 100%;
+  background: var(--shell-color, rgba(30, 32, 38, 0.95));
+  border: 3px solid var(--shell-border, #4b5161);
+  border-radius: 14px;
+  position: relative;
+  box-shadow: 
+    0 16px 36px rgba(0,0,0,0.85),
+    inset 0 1px 2px rgba(255,255,255,0.3),
+    inset 0 -2px 4px rgba(0,0,0,0.6);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Screws */
+.screw {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ddd 0%, var(--screw-color, #8a93a8) 60%, #333 100%);
+  box-shadow: inset 0 1px 1px #fff, 0 1px 1px rgba(0,0,0,0.8);
+  z-index: 12;
+}
+.screw::after {
+  content: '+';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: #222;
+}
+.screw-tl { top: 8px; left: 8px; }
+.screw-tr { top: 8px; right: 8px; }
+.screw-bl { bottom: 8px; left: 8px; }
+.screw-br { bottom: 8px; right: 8px; }
+.screw-tc { top: 8px; left: 50%; transform: translateX(-50%); }
+
+/* Write Protect Tabs */
+.write-protect-tab {
+  position: absolute;
+  top: 0;
+  width: 18px;
+  height: 7px;
+  background: #111317;
+  border: 1px solid #333;
+}
+.tab-left { left: 28px; }
+.tab-right { right: 28px; }
+
+/* Dynamic Sticker Label */
+.cassette-label {
+  margin: 18px 24px 8px 24px;
+  height: 140px;
+  border-radius: 8px;
+  box-shadow: 
+    0 3px 8px rgba(0,0,0,0.6),
+    inset 0 1px 1px rgba(255,255,255,0.4);
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.label-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  letter-spacing: 1px;
+}
+
+.label-side span {
+  font-size: 14px;
+  color: #ffeb3b;
+  font-weight: 900;
+}
+
+.label-ruled-area {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 4px;
+  padding: 6px 10px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.title-line {
+  border-bottom: 1px solid #cbd5e1;
+  padding-bottom: 2px;
+}
+
+.label-title-text {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a202c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.artist-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label-artist-text {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a5568;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.label-count-tag {
+  font-family: var(--font-display);
+  font-size: 9px;
+  background: #2d3748;
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* Center Trapezoid Window & Dual Spools */
+.cassette-center-window {
+  margin: 0 auto;
+  width: 250px;
+  height: 64px;
+  background: rgba(10, 12, 16, 0.88);
+  border: 2px solid rgba(255,255,255,0.18);
+  border-radius: 6px;
+  box-shadow: inset 0 3px 10px #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  position: relative;
+  z-index: 5;
+}
+
+/* Scale Gauge 100 - 50 - 0 */
+.scale-gauge {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  font-family: var(--font-display);
+  font-size: 7px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.window-center-bridge {
+  width: 44px;
+  height: 24px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 3px;
+  background: rgba(0,0,0,0.5);
+}
+
+/* Reel Spool & Tape Roll */
+.reel-pack {
+  width: 50px;
+  height: 50px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tape-roll {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, #382417 0%, #1e120b 80%, #0d0704 100%);
+  box-shadow: inset 0 0 6px #000;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.reel-spool {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #a0aec0;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  z-index: 2;
+}
+
+.reel-spool.spinning {
+  animation: spin-reels 2s linear infinite;
+}
+
+@keyframes spin-reels {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spool-center {
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  background: #111317;
+}
+
+/* 6 Gear Teeth */
+.spool-teeth {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 12px;
+  background: #fff;
+  border-radius: 1px;
+  transform-origin: center center;
+}
+.tooth-1 { transform: translate(-50%, -50%) rotate(0deg); }
+.tooth-2 { transform: translate(-50%, -50%) rotate(60deg); }
+.tooth-3 { transform: translate(-50%, -50%) rotate(120deg); }
+.tooth-4 { transform: translate(-50%, -50%) rotate(180deg); }
+.tooth-5 { transform: translate(-50%, -50%) rotate(240deg); }
+.tooth-6 { transform: translate(-50%, -50%) rotate(300deg); }
+
+/* Bottom Head Bay & Guide Rollers */
+.cassette-bottom-bay {
+  margin-top: auto;
+  height: 48px;
+  background: rgba(18, 20, 26, 0.95);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 28px;
+}
+
+.guide-roller {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e2e8f0 0%, #718096 70%, #1a202c 100%);
+  box-shadow: 0 1px 2px #000;
+}
+
+.head-aperture-left, .head-aperture-right {
+  width: 20px;
+  height: 14px;
+  background: #090a0d;
+  border: 1px solid #333;
+  border-radius: 2px;
+}
+
+.center-pressure-pad {
+  width: 24px;
+  height: 12px;
+  background: #a0522d;
+  border: 1px solid #5c2c16;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   MODAL POPUP SYSTEM (모든 팝업은 레트로 하이파이 모달팝업)
+   ========================================================================== */
+.retro-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.retro-modal-backdrop.is-open {
+  display: flex;
+  opacity: 1;
+}
+
+.retro-modal-frame {
+  width: 100%;
+  max-width: 580px;
+  background: linear-gradient(180deg, #2a2d36 0%, #1a1c22 100%);
+  border: 2px solid #51586a;
+  border-radius: 10px;
+  box-shadow: 
+    0 24px 50px rgba(0, 0, 0, 0.95),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    0 0 0 1px #000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.94);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.retro-modal-backdrop.is-open .retro-modal-frame {
+  transform: scale(1);
+}
+
+.retro-modal-header {
+  height: 44px;
+  background: linear-gradient(180deg, #373b47 0%, #252831 100%);
+  border-bottom: 2px solid #14161b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.modal-header-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--vfd-cyan);
+  text-shadow: var(--vfd-glow);
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-btn-close {
+  width: 26px;
+  height: 26px;
+  background: #181920;
+  border: 1px solid #4a5163;
+  border-radius: 4px;
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-btn-close:active {
+  background: #8b0000;
+  color: #fff;
+}
+
+.retro-modal-body {
+  padding: 20px;
+  color: #e2e8f0;
+  font-size: 13px;
+  line-height: 1.6;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Changelog Styles inside Modal */
+.changelog-box {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.changelog-version-tag {
+  display: inline-block;
+  background: var(--vfd-cyan-dim);
+  color: var(--vfd-cyan);
+  border: 1px solid var(--vfd-cyan);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.changelog-list {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.changelog-list li {
+  position: relative;
+  padding-left: 20px;
+  color: #cbd5e1;
+}
+
+.changelog-list li::before {
+  content: '▶';
+  position: absolute;
+  left: 0;
+  color: var(--vfd-amber);
+  font-size: 10px;
+  top: 3px;
+}
+
+.retro-modal-footer {
+  padding: 12px 18px;
+  background: #15171d;
+  border-top: 1px solid #292d38;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-action-btn {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 6px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid #4a5163;
+  background: #2b2f3a;
+  color: #fff;
+}
+
+.modal-action-btn.btn-confirm {
+  background: linear-gradient(180deg, #00b4d8 0%, #0077b6 100%);
+  border-color: #0096c7;
+}
+
+.modal-action-btn.btn-danger {
+  background: linear-gradient(180deg, #e53935 0%, #b71c1c 100%);
+  border-color: #ef5350;
+}
